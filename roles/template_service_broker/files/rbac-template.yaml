@@ -1,14 +1,4 @@
-apiVersion: template.openshift.io/v1
-kind: Template
-metadata:
-  name: template-service-broker-rbac
-parameters:
-- name: NAMESPACE
-  value: openshift-template-service-broker
-- name: KUBE_SYSTEM
-  value: kube-system
-objects:
-
+---
 # Grant the service account permission to call the TSB
 - apiVersion: rbac.authorization.k8s.io/v1
   kind: ClusterRoleBinding
@@ -19,47 +9,47 @@ objects:
     name: system:openshift:templateservicebroker-client
   subjects:
   - kind: ServiceAccount
-    namespace: ${NAMESPACE}
+    namespace: "{{ broker_namespace }}"
     name: templateservicebroker-client
 
 # to delegate authentication and authorization
 - apiVersion: rbac.authorization.k8s.io/v1
   kind: ClusterRoleBinding
   metadata:
-    name: auth-delegator-${NAMESPACE}
+    name: "auth-delegator-{{ broker_namespace }}"
   roleRef:
     kind: ClusterRole
     name: system:auth-delegator
   subjects:
   - kind: ServiceAccount
-    namespace: ${NAMESPACE}
+    namespace: "{{ broker_namespace }}"
     name: apiserver
 
 # to have the template service broker powers
 - apiVersion: rbac.authorization.k8s.io/v1
   kind: ClusterRoleBinding
   metadata:
-    name: tsb-${NAMESPACE}
+    name: "tsb-{{ broker_namespace }}"
   roleRef:
     kind: ClusterRole
     name: system:openshift:controller:template-service-broker
   subjects:
   - kind: ServiceAccount
-    namespace: ${NAMESPACE}
+    namespace: "{{ broker_namespace }}"
     name: apiserver
 
 # to read the config for terminating authentication
 - apiVersion: rbac.authorization.k8s.io/v1
   kind: RoleBinding
   metadata:
-    namespace: ${KUBE_SYSTEM}
-    name: extension-apiserver-authentication-reader-${NAMESPACE}
+    namespace: "{{ kube_system_namespace }}"
+    name: "extension-apiserver-authentication-reader-{{ broker_namespace }}"
   roleRef:
     kind: Role
     name: extension-apiserver-authentication-reader
   subjects:
   - kind: ServiceAccount
-    namespace: ${NAMESPACE}
+    namespace: "{{ broker_namespace }}"
     name: apiserver
 
 # allow the kube service catalog's SA to read the static secret defined
@@ -68,7 +58,7 @@ objects:
   kind: Role
   metadata:
     name: templateservicebroker-auth-reader
-    namespace: ${NAMESPACE}
+    namespace: "{{ broker_namespace }}"
   rules:
   - apiGroups:
     - ""
@@ -81,7 +71,7 @@ objects:
 - apiVersion: rbac.authorization.k8s.io/v1
   kind: RoleBinding
   metadata:
-    namespace: ${NAMESPACE}
+    namespace: "{{ broker_namespace }}"
     name: templateservicebroker-auth-reader
   roleRef:
     kind: Role

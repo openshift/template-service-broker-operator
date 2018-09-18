@@ -41,7 +41,7 @@ spec:
             path: /healthz
             port: 8443
             scheme: HTTPS
-      nodeSelector: "{{ broker_node_selector }}"
+      nodeSelector: {{ broker_node_selector }}
       volumes:
       - name: serving-cert
         secret:

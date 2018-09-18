@@ -49,8 +49,9 @@
   set_fact:
     encoded_apiserver_config: "{{ apiserver_config | b64encode }}"
 
+- name: "Set apiserver objects state={{ state }}"
   k8s:
-    state: '{{ state }}'
+    state: "{{ state }}"
     definition: "{{ lookup('template', item.name) | from_yaml }}"
   loop:
     - name: apiserver.daemonset.yaml
@@ -60,7 +61,24 @@
     - name: tsb-client.serviceaccount.yaml
     - name: tsb-client.secret.yaml
 
-## reconcile with rbac
+#- name: "Set rbac objects state={{ state }}"
+  #k8s:
+    #state: "{{ state }}"
+    #definition: "{{ lookup('template', 'rbac.yaml') | from_yaml }}"
+
+#- name: "Set rbac objects state={{ state }}"
+  #k8s:
+    #state: "{{ state }}"
+    #definition: "{{ lookup('template', item.name) | from_yaml }}"
+  #loop:
+    #- name: apiserver.daemonset.yaml
+    #- name: apiserver.configmap.yaml
+    #- name: apiserver.serviceaccount.yaml
+    #- name: apiserver.service.yaml
+    #- name: tsb-client.serviceaccount.yaml
+    #- name: tsb-client.secret.yaml
+
+# TODO: Is 'oc reconcile' here doing something special?
 #- name: Reconcile with RBAC file
   #shell: >
     #{{ openshift_client_binary }} process --config={{ mktemp.stdout }}/admin.kubeconfig -f "{{ mktemp.stdout }}/{{ __tsb_rbac_file }}" -n openshift-template-service-broker
