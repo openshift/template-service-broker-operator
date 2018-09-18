@@ -49,7 +49,7 @@
   set_fact:
     encoded_apiserver_config: "{{ apiserver_config | b64encode }}"
 
-- name: "Set apiserver objects state={{ state }}"
+- name: "Set tsb objects state={{ state }}"
   k8s:
     state: "{{ state }}"
     definition: "{{ lookup('template', item.name) | from_yaml }}"
@@ -57,26 +57,15 @@
     - name: apiserver.daemonset.yaml
     - name: apiserver.configmap.yaml
     - name: apiserver.serviceaccount.yaml
+    - name: apiserver.clusterrolebinding.yaml
     - name: apiserver.service.yaml
+    - name: auth-delegator.clusterrolebinding.yaml
+    - name: auth-reader.rolebinding.yaml
+    - name: catalog-auth.role.yaml
+    - name: catalog-auth.rolebinding.yaml
     - name: tsb-client.serviceaccount.yaml
     - name: tsb-client.secret.yaml
-
-#- name: "Set rbac objects state={{ state }}"
-  #k8s:
-    #state: "{{ state }}"
-    #definition: "{{ lookup('template', 'rbac.yaml') | from_yaml }}"
-
-#- name: "Set rbac objects state={{ state }}"
-  #k8s:
-    #state: "{{ state }}"
-    #definition: "{{ lookup('template', item.name) | from_yaml }}"
-  #loop:
-    #- name: apiserver.daemonset.yaml
-    #- name: apiserver.configmap.yaml
-    #- name: apiserver.serviceaccount.yaml
-    #- name: apiserver.service.yaml
-    #- name: tsb-client.serviceaccount.yaml
-    #- name: tsb-client.secret.yaml
+    - name: tsb-client.clusterrolebinding.yaml
 
 # TODO: Is 'oc reconcile' here doing something special?
 #- name: Reconcile with RBAC file
