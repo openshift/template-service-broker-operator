@@ -1,0 +1,8 @@
+---
+# do any asserts here
+
+- include_tasks: install.yml
+  when: state == 'present'
+
+- include_tasks: remove.yml
+  when: state == 'absent'

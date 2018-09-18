@@ -1,0 +1,55 @@
+---
+# to create the tsb server
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  namespace: "{{ broker_namespace }}"
+  name: apiserver
+  labels:
+    apiserver: "true"
+spec:
+  template:
+    metadata:
+      name: apiserver
+      labels:
+        apiserver: "true"
+    spec:
+      serviceAccountName: apiserver
+      containers:
+      - name: c
+        image: "{{ broker_image }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/usr/bin/template-service-broker"
+        - "start"
+        - "template-service-broker"
+        - "--secure-port=8443"
+        - "--audit-log-path=-"
+        - "--tls-cert-file=/var/serving-cert/tls.crt"
+        - "--tls-private-key-file=/var/serving-cert/tls.key"
+        - "--v={{ broker_log_level }}"
+        - "--config=/var/apiserver-config/apiserver-config.yaml"
+        ports:
+        - containerPort: 8443
+        volumeMounts:
+        - mountPath: /var/serving-cert
+          name: serving-cert
+        - mountPath: /var/apiserver-config
+          name: apiserver-config
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8443
+            scheme: HTTPS
+      nodeSelector: "{{ broker_node_selector }}"
+      volumes:
+      - name: serving-cert
+        secret:
+          defaultMode: 420
+          secretName: apiserver-serving-cert
+      - name: apiserver-config
+        configMap:
+          defaultMode: 420
+          name: apiserver-config
+  updateStrategy:
+    type: RollingUpdate

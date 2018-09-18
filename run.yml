@@ -1,0 +1,7 @@
+- hosts: localhost
+  connection: local
+  roles:
+    - template_service_broker
+  vars:
+    template_service_broker_install: true
+    template_service_broker_remove: false

@@ -1,0 +1,7 @@
+---
+kind: TemplateServiceBrokerConfig
+apiVersion: config.templateservicebroker.openshift.io/v1
+templateNamespaces:
+{% for ns in template_namespaces%}
+  - {{ ns | quote }}
+{% endfor%}
