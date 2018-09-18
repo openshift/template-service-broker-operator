@@ -40,6 +40,12 @@
     #--param NODE_SELECTOR={{ {'node-role.kubernetes.io/master':'true'} | to_json | quote }}
     #| {{ openshift_client_binary }} apply --config={{ mktemp.stdout }}/admin.kubeconfig -f -
 
+# TODO: Is 'oc reconcile' here doing something special?
+#- name: Reconcile with RBAC file
+  #shell: >
+    #{{ openshift_client_binary }} process --config={{ mktemp.stdout }}/admin.kubeconfig -f "{{ mktemp.stdout }}/{{ __tsb_rbac_file }}" -n openshift-template-service-broker
+    #| {{ openshift_client_binary }} auth reconcile --config={{ mktemp.stdout }}/admin.kubeconfig -f -
+
 - name: Set apiserver_config if not already defined
   when: apiserver_config is not defined
   set_fact:
@@ -67,26 +73,20 @@
     - name: tsb-client.secret.yaml
     - name: tsb-client.clusterrolebinding.yaml
 
-# TODO: Is 'oc reconcile' here doing something special?
-#- name: Reconcile with RBAC file
-  #shell: >
-    #{{ openshift_client_binary }} process --config={{ mktemp.stdout }}/admin.kubeconfig -f "{{ mktemp.stdout }}/{{ __tsb_rbac_file }}" -n openshift-template-service-broker
-    #| {{ openshift_client_binary }} auth reconcile --config={{ mktemp.stdout }}/admin.kubeconfig -f -
+- name: Verify that TSB is running
+  uri:
+    url: "https://{{ apiserver_service_name }}.{{ broker_namespace }}.svc/healthz }}"
+    validate_certs: no
+    return_content: yes
+  environment:
+    no_proxy: '*'
+  register: api_health
+  until: "'ok' in api_health.content"
+  retries: 60
+  delay: 10
+  changed_when: false
 
-## Check that the TSB is running
-#- name: Verify that TSB is running
-  #uri:
-    #url: https://apiserver.openshift-template-service-broker.svc/healthz
-    #validate_certs: no
-    #return_content: yes
-  #environment:
-    #no_proxy: '*'
-  #register: api_health
-  #until: "'ok' in api_health.content"
-  #retries: 60
-  #delay: 10
-  #changed_when: false
-
+# TODO: Need to figure out where to get this cert
 #- slurp:
     #src: "/etc/origin/master/service-signer.crt"
   #register: __ca_bundle
