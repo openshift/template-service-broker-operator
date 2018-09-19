@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: template-service-broker-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: template-service-broker-operator
+  template:
+    metadata:
+      labels:
+        name: template-service-broker-operator
+    spec:
+      containers:
+        - name: template-service-broker-operator
+          image: docker.io/eriknelson/template-service-broker-operator
+          imagePullPolicy: IfNotPresent
