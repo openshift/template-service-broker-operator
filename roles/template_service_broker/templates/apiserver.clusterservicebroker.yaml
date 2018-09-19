@@ -3,7 +3,7 @@
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ClusterServiceBroker
 metadata:
-  name: template-service-broker
+  name: {{ broker_name }}
 spec:
   url: "https://{{ apiserver_service_name }}.{{ broker_namespace }}.svc:443/brokers/template.openshift.io"
   insecureSkipTLSVerify: false

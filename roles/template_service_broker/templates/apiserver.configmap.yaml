@@ -6,4 +6,4 @@ metadata:
   namespace: "{{ broker_namespace }}"
   name: apiserver-config
 data:
-  apiserver-config.yaml: "{{ encoded_apiserver_config }}"
+  apiserver-config.yaml: {{ apiserver_config }}
