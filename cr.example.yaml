@@ -1,5 +1,5 @@
 ---
-apiVersion: "automationbroker.io/v1alpha1"
+apiVersion: "openshift.io/v1alpha1"
 kind: "TemplateServiceBroker"
 metadata:
   name: template-service-broker-operator

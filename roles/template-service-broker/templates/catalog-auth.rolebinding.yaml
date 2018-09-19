@@ -1,0 +1,13 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: "{{ broker_namespace }}"
+  name: templateservicebroker-auth-reader
+roleRef:
+  kind: Role
+  name: templateservicebroker-auth-reader
+subjects:
+- kind: ServiceAccount
+  namespace: kube-service-catalog
+  name: service-catalog-controller
