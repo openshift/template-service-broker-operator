@@ -1,17 +1,28 @@
 ---
 # to create the tsb server
-apiVersion: extensions/v1beta1
-kind: DaemonSet
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
 metadata:
-  namespace: "{{ broker_namespace }}"
   name: apiserver
+  namespace: "{{ broker_namespace }}"
   labels:
     apiserver: "true"
+    app: "{{ broker_name }}"
 spec:
+  replicas: 1
+  selector:
+    apiserver: "true"
+    app: "{{ broker_name }}"
+  strategy:
+    type: Rolling
+{% if broker_node_selector != "" %}
+  nodeSelector: '{{ broker_node_selector }}'
+{% endif %}
   template:
     metadata:
       name: apiserver
       labels:
+        service: "{{ apiserver_service_name }}"
         apiserver: "true"
         app: "{{ broker_name }}"
     spec:
@@ -42,7 +53,6 @@ spec:
             path: /healthz
             port: 8443
             scheme: HTTPS
-      nodeSelector: {{ broker_node_selector }}
       volumes:
       - name: serving-cert
         secret:
@@ -52,5 +62,3 @@ spec:
         configMap:
           defaultMode: 420
           name: apiserver-config
-  updateStrategy:
-    type: RollingUpdate

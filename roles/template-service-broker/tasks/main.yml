@@ -9,7 +9,7 @@
     state: "{{ state }}"
     definition: "{{ lookup('template', item.name) | from_yaml }}"
   loop:
-    - name: apiserver.daemonset.yaml
+    - name: apiserver.deployment.yaml
     - name: apiserver.configmap.yaml
     - name: apiserver.serviceaccount.yaml
     - name: apiserver.clusterrolebinding.yaml

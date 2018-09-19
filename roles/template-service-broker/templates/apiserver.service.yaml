@@ -10,6 +10,8 @@ metadata:
 spec:
   selector:
     apiserver: "true"
+    app: "{{ broker_name }}"
+    service: "{{ apiserver_service_name }}"
   ports:
   - port: 443
     targetPort: 8443
