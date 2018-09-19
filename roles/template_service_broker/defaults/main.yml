@@ -7,10 +7,12 @@ broker_namespace: openshift-template-service-broker
 broker_image: docker.io/openshift/origin-template-service-broker:latest
 broker_log_level: '0'
 broker_node_selector: "{}"
+
 # master node selector from openshift ansible; this will not deploy in
 # oc cluster up, so we'll default to an empty node selector and accept an
 # override
 #broker_node_selector: "{{ {'node-role.kubernetes.io/master':'true'} | to_json }}"
+
 apiserver_service_name: apiserver
 apiserver_serving_cert_secret : apiserver-serving-cert
 
