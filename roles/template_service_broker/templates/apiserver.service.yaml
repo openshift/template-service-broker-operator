@@ -6,11 +6,10 @@ metadata:
   namespace: "{{ broker_namespace }}"
   name: "{{ apiserver_service_name }}"
   annotations:
-    service.alpha.openshift.io/serving-cert-secret-name: apiserver-serving-cert
+    service.alpha.openshift.io/serving-cert-secret-name: "{{ apiserver_serving_cert_secret }}"
 spec:
   selector:
     apiserver: "true"
   ports:
   - port: 443
     targetPort: 8443
-

@@ -86,7 +86,13 @@
   delay: 10
   changed_when: false
 
-# TODO: Need to figure out where to get this cert
+- name: Set service_ca_bundle
+  set_fact:
+    service_ca_bundle: "{{ lookup('k8s', kind='Secret', api_version='v1', namespace=broker_namespace, resource_name=apiserver_serving_cert_secret) | json_query('data.\"tls.crt\"')}}"
+
+- debug:
+    msg: "service_ca_bundle - [ {{ service_ca_bundle }} ]"
+
 #- slurp:
     #src: "/etc/origin/master/service-signer.crt"
   #register: __ca_bundle

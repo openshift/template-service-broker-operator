@@ -1,0 +1,16 @@
+---
+# register the tsb with the service catalog
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ClusterServiceBroker
+metadata:
+  name: template-service-broker
+spec:
+  url: "https://{{ apiserver_service_name }}.{{ broker_namespace }}.svc:443/brokers/template.openshift.io"
+  insecureSkipTLSVerify: false
+  caBundle: "{{ service_ca_bundle }}"
+  authInfo:
+    bearer:
+      secretRef:
+        kind:      Secret
+        name:      templateservicebroker-client
+        namespace: "{{ broker_namespace }}"
