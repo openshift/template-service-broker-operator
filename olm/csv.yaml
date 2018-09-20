@@ -1,17 +1,17 @@
 apiVersion: app.coreos.com/v1alpha1
-kind: ClusterServiceVersion-v1
+kind: ClusterServiceVersion
 metadata:
-  name: foo.v0.1.0
+  name: templateservicebrokeroperator.v0.1.0
   namespace: placeholder
 spec:
   install:
     strategy: deployment
     spec:
       permissions:
-      - serviceAccountName: foo-operator
+      - serviceAccountName: template-service-broker-operator
         rules:
         - apiGroups:
-          - foo
+          - openshift.io
           resources:
           - "*"
           verbs:
@@ -38,45 +38,34 @@ spec:
           verbs:
           - "*"
       deployments:
-      - name: foo-operator
+      - name: template-service-broker-operator
         spec:
           replicas: 1
           selector:
             matchLabels:
-              app: foo-operator
+              app: template-service-broker-operator
           template:
             metadata:
               labels:
-                app: foo-operator
+                app: template-service-broker-operator
             spec:
               containers:
-                - name: foo-operator-olm-owned
-                  image: docker.io/eriknelson/foo-operator
-                  command:
-                  - foo-operator
+                - name: template-service-broker-operator-olm-owned
+                  image: docker.io/eriknelson/template-service-broker-operator
                   imagePullPolicy: Always
-                  env:
-                  - name: MY_POD_NAMESPACE
-                    valueFrom:
-                      fieldRef:
-                        fieldPath: metadata.namespace
-                  - name: MY_POD_NAME
-                    valueFrom:
-                      fieldRef:
-                        fieldPath: metadata.name
               restartPolicy: Always
               terminationGracePeriodSeconds: 5
-              serviceAccountName: foo-operator
-              serviceAccount: foo-operator
+              serviceAccountName: template-service-broker-operator
+              serviceAccount: template-service-broker-operator
   customresourcedefinitions:
     owned:
-      - description: Represents an instance of a Foo application
-        displayName: Foo Application
-        kind: Foo
-        name: foos.foo
+      - description: Represents an instance of a Template Service Broker
+        displayName: Template Service Broker
+        kind: TemplateServiceBroker
+        name: templateservicebrokers.openshift.io
         version: 0.1.0
   version: 0.1.0
-  displayName: Foo
+  displayName: Template Service Broker Operator
   labels:
-    olm-owner-enterprise-app: foo-operator
-    olm-status-descriptors: foo.v0.1.0
+    olm-owner-enterprise-app: template-service-broker-operator
+    olm-status-descriptors: templateservicebrokeroperator.v0.1.0
