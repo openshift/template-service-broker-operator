@@ -1,4 +1,4 @@
-packageName: foo
+packageName: template-service-broker
 channels:
 - name: alpha
-  currentCSV: foo.v0.1.0
+  currentCSV: template-service-broker.v0.1.0
