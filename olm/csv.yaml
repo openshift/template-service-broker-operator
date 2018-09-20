@@ -1,0 +1,82 @@
+apiVersion: app.coreos.com/v1alpha1
+kind: ClusterServiceVersion-v1
+metadata:
+  name: foo.v0.1.0
+  namespace: placeholder
+spec:
+  install:
+    strategy: deployment
+    spec:
+      permissions:
+      - serviceAccountName: foo-operator
+        rules:
+        - apiGroups:
+          - foo
+          resources:
+          - "*"
+          verbs:
+          - "*"
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          - services
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - configmaps
+          - secrets
+          verbs:
+          - "*"
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - "*"
+      deployments:
+      - name: foo-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: foo-operator
+          template:
+            metadata:
+              labels:
+                app: foo-operator
+            spec:
+              containers:
+                - name: foo-operator-olm-owned
+                  image: docker.io/eriknelson/foo-operator
+                  command:
+                  - foo-operator
+                  imagePullPolicy: Always
+                  env:
+                  - name: MY_POD_NAMESPACE
+                    valueFrom:
+                      fieldRef:
+                        fieldPath: metadata.namespace
+                  - name: MY_POD_NAME
+                    valueFrom:
+                      fieldRef:
+                        fieldPath: metadata.name
+              restartPolicy: Always
+              terminationGracePeriodSeconds: 5
+              serviceAccountName: foo-operator
+              serviceAccount: foo-operator
+  customresourcedefinitions:
+    owned:
+      - description: Represents an instance of a Foo application
+        displayName: Foo Application
+        kind: Foo
+        name: foos.foo
+        version: 0.1.0
+  version: 0.1.0
+  displayName: Foo
+  labels:
+    olm-owner-enterprise-app: foo-operator
+    olm-status-descriptors: foo.v0.1.0

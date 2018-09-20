@@ -1,0 +1,4 @@
+packageName: foo
+channels:
+- name: alpha
+  currentCSV: foo.v0.1.0
