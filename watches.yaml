@@ -1,11 +1,10 @@
 ---
-
 - name: TemplateServiceBroker
   version: v1alpha1
-  group: openshift.io
+  group: osb.openshift.io
   kind: TemplateServiceBroker
-  playbook: /opt/ansible/deploy.yml
+  playbook: /opt/ansible/main.yml
   finalizer:
-    name: finalizer.openshift.io
+    name: finalizer.osb.openshift.io
     vars:
       state: absent
