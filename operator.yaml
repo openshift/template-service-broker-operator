@@ -14,5 +14,5 @@ spec:
     spec:
       containers:
         - name: template-service-broker-operator
-          image: docker.io/eriknelson/template-service-broker-operator
+          image: docker.io/automationbroker/template-service-broker-operator
           imagePullPolicy: IfNotPresent
