@@ -12,5 +12,5 @@ spec:
     bearer:
       secretRef:
         kind:      Secret
-        name:      templateservicebroker-client
+        name:      template-service-broker-client
         namespace: "{{ broker_namespace }}"

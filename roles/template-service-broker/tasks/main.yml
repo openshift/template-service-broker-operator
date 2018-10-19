@@ -11,16 +11,8 @@
   loop:
     - name: apiserver.deployment.yaml
     - name: apiserver.configmap.yaml
-    - name: apiserver.serviceaccount.yaml
-    - name: apiserver.clusterrolebinding.yaml
     - name: apiserver.service.yaml
-    - name: auth-delegator.clusterrolebinding.yaml
-    - name: auth-reader.rolebinding.yaml
-    - name: catalog-auth.role.yaml
-    - name: catalog-auth.rolebinding.yaml
-    - name: tsb-client.serviceaccount.yaml
     - name: tsb-client.secret.yaml
-    - name: tsb-client.clusterrolebinding.yaml
 
 - name: "Set tsb config map state={{ state }}"
   k8s:
