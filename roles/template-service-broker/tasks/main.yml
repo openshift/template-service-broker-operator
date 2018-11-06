@@ -1,0 +1,43 @@
+---
+- name: Set apiserver_config if not already defined
+  when: apiserver_config is not defined
+  set_fact:
+    apiserver_config: "{{ lookup('template', 'templateservicebrokerconfig.yaml') | to_json }}"
+
+- name: "Set tsb objects state={{ state }}"
+  k8s:
+    state: "{{ state }}"
+    definition: "{{ lookup('template', item.name) | from_yaml }}"
+  loop:
+    - name: apiserver.deployment.yaml
+    - name: apiserver.configmap.yaml
+    - name: apiserver.service.yaml
+    - name: tsb-client.secret.yaml
+
+- name: "Set tsb config map state={{ state }}"
+  k8s:
+    state: "{{ state }}"
+    definition: "{{ lookup('template', 'apiserver.configmap.yaml') | from_yaml }}"
+  register: configmap_result
+
+- name: Redeploy tsb if the configmap changed
+  k8s:
+    state: absent
+    kind: Pod
+    api_version: v1
+    namespace: '{{ broker_namespace }}'
+    name: '{{ pod.metadata.name }}'
+  vars:
+    pod: '{{ lookup("k8s", kind="Pod", api_version="v1", namespace=broker_namespace, label_selector=("app=" + broker_name)) }}'
+  when:
+  - configmap_result.changed
+  - pod
+
+- name: Set service_ca_bundle
+  set_fact:
+    service_ca_bundle: "{{ lookup('k8s', kind='Secret', api_version='v1', namespace=broker_namespace, resource_name=apiserver_serving_cert_secret) | json_query('data.\"tls.crt\"')}}"
+
+- name: "Set clusterservicebroker state={{ state }}"
+  k8s:
+    state: "{{ state }}"
+    definition: "{{ lookup('template', 'apiserver.clusterservicebroker.yaml') | from_yaml }}"

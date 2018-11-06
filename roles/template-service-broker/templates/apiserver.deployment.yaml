@@ -1,0 +1,64 @@
+---
+# to create the tsb server
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: apiserver
+  namespace: "{{ broker_namespace }}"
+  labels:
+    apiserver: "true"
+    app: "{{ broker_name }}"
+spec:
+  replicas: 1
+  selector:
+    apiserver: "true"
+    app: "{{ broker_name }}"
+  strategy:
+    type: Rolling
+{% if broker_node_selector != "" %}
+  nodeSelector: '{{ broker_node_selector }}'
+{% endif %}
+  template:
+    metadata:
+      name: apiserver
+      labels:
+        service: "{{ apiserver_service_name }}"
+        apiserver: "true"
+        app: "{{ broker_name }}"
+    spec:
+      serviceAccountName: apiserver
+      containers:
+      - name: c
+        image: "{{ broker_image }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/usr/bin/template-service-broker"
+        - "start"
+        - "template-service-broker"
+        - "--secure-port=8443"
+        - "--audit-log-path=-"
+        - "--tls-cert-file=/var/serving-cert/tls.crt"
+        - "--tls-private-key-file=/var/serving-cert/tls.key"
+        - "--v={{ broker_log_level }}"
+        - "--config=/var/apiserver-config/apiserver-config.yaml"
+        ports:
+        - containerPort: 8443
+        volumeMounts:
+        - mountPath: /var/serving-cert
+          name: serving-cert
+        - mountPath: /var/apiserver-config
+          name: apiserver-config
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8443
+            scheme: HTTPS
+      volumes:
+      - name: serving-cert
+        secret:
+          defaultMode: 420
+          secretName: "{{ apiserver_serving_cert_secret }}"
+      - name: apiserver-config
+        configMap:
+          defaultMode: 420
+          name: apiserver-config

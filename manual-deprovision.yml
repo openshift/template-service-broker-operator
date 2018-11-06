@@ -1,0 +1,10 @@
+---
+- name: template-service-broker-operator
+  hosts: localhost
+  become: false
+  gather_facts: false
+  connection: local
+  roles:
+  - role: template-service-broker
+  vars:
+    state: absent

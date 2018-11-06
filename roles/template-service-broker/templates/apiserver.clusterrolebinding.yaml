@@ -1,0 +1,13 @@
+---
+# to have the template service broker powers
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: "tsb-{{ broker_namespace }}"
+roleRef:
+  kind: ClusterRole
+  name: system:openshift:controller:template-service-broker
+subjects:
+- kind: ServiceAccount
+  namespace: "{{ broker_namespace }}"
+  name: apiserver
