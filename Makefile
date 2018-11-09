@@ -6,8 +6,14 @@ IMAGE      ?= ${REGISTRY}/${ORG}/template-service-broker-operator:${TAG}
 build: ## Build the tsb operator image
 	docker build -t ${IMAGE} .
 
-openshift-ci-lint:
+openshift-ci-test-container:
 	yum -y install ansible-lint
-	ansible-lint /opt/ansible/main.yml -x ANSIBLE0016 #Fix Me
+	mkdir -p /opt/ansible/roles/
+	cp -r roles/template-service-broker /opt/ansible/roles/template-service-broker
+	cp -r watches.yaml /opt/ansible/watches.yaml
+	cp -r main.yml /opt/ansible/main.yml
+
+openshift-ci-operator-lint:
+	ansible-lint /opt/ansible/main.yml
 
 .PHONY: build openshift-ci-lint
