@@ -16,4 +16,4 @@ openshift-ci-test-container:
 openshift-ci-operator-lint:
 	ansible-lint /opt/ansible/main.yml
 
-.PHONY: build openshift-ci-lint
+.PHONY: build openshift-ci-test-container openshift-ci-operator-lint
