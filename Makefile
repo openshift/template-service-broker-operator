@@ -14,6 +14,6 @@ openshift-ci-test-container:
 	cp -r main.yml /opt/ansible/main.yml
 
 openshift-ci-operator-lint:
-	ansible-lint /opt/ansible/main.yml
+	ANSIBLE_LOCAL_TEMP=/tmp/.ansible ansible-lint /opt/ansible/main.yml
 
 .PHONY: build openshift-ci-test-container openshift-ci-operator-lint
