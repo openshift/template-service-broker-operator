@@ -4,9 +4,22 @@
   become: false
   gather_facts: false
   connection: local
-  roles:
-  - role: template-service-broker
   vars:
     state: present
     broker_name: "{{ meta.name }}"
     broker_namespace: "{{ meta.namespace }}"
+    broker_image: "{{ lookup('env', 'IMAGE') }}"
+  tasks:
+    - name: Validation
+      assert:
+        that:
+          - broker_name is defined
+          - broker_namespace is defined
+          - broker_image is defined
+        msg: |
+          broker_name broker_namespace broker_image must be defined
+          The IMAGE environment variable must provide the broker's image name
+          and should be specified in the operator's deployment specification.
+    - name: Run template-service-broker role
+      include_role:
+        name: template-service-broker
