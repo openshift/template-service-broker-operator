@@ -1,0 +1,9 @@
+apiVersion: operators.coreos.com/v1alpha2
+kind: OperatorGroup
+metadata:
+  name: template-service-broker
+  namespace: openshift-template-service-broker
+spec:
+  selector:
+    matchLabels:
+      ns: openshift-template-service-broker

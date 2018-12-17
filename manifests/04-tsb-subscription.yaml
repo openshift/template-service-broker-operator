@@ -1,0 +1,11 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  generateName: templatebroker-
+  namespace: openshift-template-service-broker
+spec:
+  source: tsb-operator
+  name: templatebroker
+  startingCSV: templatebrokeroperator.v0.1.0
+  channel: alpha
+

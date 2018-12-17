@@ -1,0 +1,10 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: tsb-operator
+  namespace: openshift-operator-lifecycle-manager
+spec:
+  configMap: tsb-operator
+  displayName: Template Service Broker
+  publisher: Red Hat
+  sourceType: internal
