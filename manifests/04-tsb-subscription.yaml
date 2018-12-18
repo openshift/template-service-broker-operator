@@ -6,6 +6,6 @@ metadata:
 spec:
   source: tsb-operator
   name: templatebroker
-  startingCSV: templatebrokeroperator.v0.1.0
+  startingCSV: templateservicebrokeroperator.v0.1.0
   channel: alpha
 
