@@ -58,6 +58,15 @@ spec:
       url: https://docs.okd.io/latest/architecture/service_catalog/template_service_broker.html
     - name: Source Code
       url: https://github.com/openshift/origin/tree/master/pkg/templateservicebroker
+  installModes:
+  - type: OwnNamespace
+    supported: true
+  - type: SingleNamespace
+    supported: true
+  - type: MultiNamespace
+    supported: true
+  - type: AllNamespaces
+    supported: true
   install:
     strategy: deployment
     spec:
