@@ -1,4 +1,0 @@
-packageName: template-service-broker
-channels:
-- name: alpha
-  currentCSV: template-service-broker.v0.1.0

@@ -4,7 +4,7 @@ TAG        ?= $(shell git rev-parse --short HEAD)
 IMAGE      ?= ${REGISTRY}/${ORG}/template-service-broker-operator:${TAG}
 
 build: ## Build the tsb operator image
-	docker build -t ${IMAGE} .
+	docker build -t ${IMAGE} -f build/Dockerfile .
 
 openshift-ci-test-container:
 	yum -y install ansible-lint
