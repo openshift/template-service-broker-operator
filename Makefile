@@ -11,9 +11,9 @@ openshift-ci-test-container:
 	mkdir -p /opt/ansible/roles/
 	cp -r roles/template-service-broker /opt/ansible/roles/template-service-broker
 	cp -r watches.yaml /opt/ansible/watches.yaml
-	cp -r main.yml /opt/ansible/main.yml
+	cp -r playbook.yaml /opt/ansible/playbook.yaml
 
 openshift-ci-operator-lint:
-	ANSIBLE_LOCAL_TEMP=/tmp/.ansible ansible-lint /opt/ansible/main.yml
+	ANSIBLE_LOCAL_TEMP=/tmp/.ansible ansible-lint /opt/ansible/playbook.yaml
 
 .PHONY: build openshift-ci-test-container openshift-ci-operator-lint
