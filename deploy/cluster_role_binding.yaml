@@ -6,6 +6,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: template-service-broker-operator
+  namespace: default
 roleRef:
   kind: ClusterRole
   name: cluster-admin

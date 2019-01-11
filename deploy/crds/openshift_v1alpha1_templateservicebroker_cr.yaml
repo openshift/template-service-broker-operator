@@ -1,7 +1,6 @@
----
-apiVersion: "openshift.io/v1alpha1"
+apiVersion: "osb.openshift.io/v1alpha1"
 kind: "TemplateServiceBroker"
 metadata:
-  name: eriks-template-broker
-  namespace: openshift-template-service-broker
+  name: template-broker
+  namespace: default
 spec: {}
