@@ -4,7 +4,3 @@
   group: osb.openshift.io
   kind: TemplateServiceBroker
   playbook: /opt/ansible/playbook.yaml
-  finalizer:
-    name: finalizer.osb.openshift.io
-    vars:
-      state: absent
