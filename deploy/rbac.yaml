@@ -65,11 +65,9 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: template-service-broker-operator
-  namespace: REPLACE_NAMESPACE
 roleRef:
   kind: Role
   name: template-service-broker-operator
-  namespace: REPLACE_NAMESPACE
   apiGroup: rbac.authorization.k8s.io
 
 ---

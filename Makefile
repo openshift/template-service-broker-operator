@@ -1,25 +1,26 @@
-REGISTRY   ?= docker.io
-ORG        ?= automationbroker
-TAG        ?= $(shell git rev-parse --short HEAD)
-IMAGE      ?= ${REGISTRY}/${ORG}/template-service-broker-operator:${TAG}
-NAMESPACE  ?= openshift-template-service-broker
+REGISTRY       ?= docker.io
+ORG            ?= automationbroker
+TAG            ?= $(shell git rev-parse --short HEAD)
+IMAGE          ?= ${REGISTRY}/${ORG}/template-service-broker-operator:${TAG}
+NAMESPACE      ?= openshift-template-service-broker
+TEMPLATE_CMD    = sed 's|REPLACE_IMAGE|${IMAGE}|g; s|REPLACE_NAMESPACE|${NAMESPACE}|g; s|Always|IfNotPresent|'
+DEPLOY_OBJECTS  = deploy/namespace.yaml deploy/rbac.yaml deploy/operator.yaml
+DEPLOY_CRDS     = deploy/crds/osb_v1alpha1_templateservicebroker_crd.yaml
+DEPLOY_CRS      = deploy/crds/osb_v1alpha1_templateservicebroker_cr.yaml
+
 
 build: ## Build the tsb operator image
 	operator-sdk build ${IMAGE}
 
 deploy: ## Deploy the tsb operator image in cluster
-	sed 's|REPLACE_IMAGE|${IMAGE}|g; s|REPLACE_NAMESPACE|${NAMESPACE}|g; s|Always|IfNotPresent|' \
-		deploy/namespace.yaml deploy/rbac.yaml deploy/operator.yaml \
-		deploy/crds/osb_v1alpha1_templateservicebroker_crd.yaml \
-		deploy/crds/osb_v1alpha1_templateservicebroker_cr.yaml | \
-		kubectl create -f -
+	${TEMPLATE_CMD} ${DEPLOY_OBJECTS} ${DEPLOY_CRDS} | kubectl create -f -
+	-sleep 1
+	${TEMPLATE_CMD} ${DEPLOY_CRS} | kubectl create -f -
 
 undeploy: ## UnDeploy the tsb operator image in cluster
-	sed 's|REPLACE_IMAGE|${IMAGE}|g; s|REPLACE_NAMESPACE|${NAMESPACE}|g; s|Always|IfNotPresent|' \
-		deploy/crds/osb_v1alpha1_templateservicebroker_cr.yaml \
-		deploy/crds/osb_v1alpha1_templateservicebroker_crd.yaml \
-		deploy/operator.yaml deploy/rbac.yaml deploy/namespace.yaml | \
-		kubectl delete -f -
+	${TEMPLATE_CMD} ${DEPLOY_CRS} | kubectl delete -f -
+	-sleep 1
+	${TEMPLATE_CMD} ${DEPLOY_OBJECTS} ${DEPLOY_CRDS} | kubectl delete -f -
 
 openshift-ci-test-container:
 	yum -y install ansible-lint
