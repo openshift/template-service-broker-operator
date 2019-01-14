@@ -9,15 +9,17 @@ build: ## Build the tsb operator image
 
 deploy: ## Deploy the tsb operator image in cluster
 	sed 's|REPLACE_IMAGE|${IMAGE}|g; s|REPLACE_NAMESPACE|${NAMESPACE}|g; s|Always|IfNotPresent|' \
-		deploy/namespace.yaml deploy/rbac.yaml deploy/operator.yaml | \
+		deploy/namespace.yaml deploy/rbac.yaml deploy/operator.yaml \
+		deploy/crds/osb_v1alpha1_templateservicebroker_crd.yaml \
+		deploy/crds/osb_v1alpha1_templateservicebroker_cr.yaml | \
 		kubectl create -f -
-	kubectl create -f deploy/crds/osb_v1alpha1_templateservicebroker_crd.yaml
 
 undeploy: ## UnDeploy the tsb operator image in cluster
 	sed 's|REPLACE_IMAGE|${IMAGE}|g; s|REPLACE_NAMESPACE|${NAMESPACE}|g; s|Always|IfNotPresent|' \
-		deploy/namespace.yaml deploy/rbac.yaml deploy/operator.yaml | \
+		deploy/crds/osb_v1alpha1_templateservicebroker_cr.yaml \
+		deploy/crds/osb_v1alpha1_templateservicebroker_crd.yaml \
+		deploy/operator.yaml deploy/rbac.yaml deploy/namespace.yaml | \
 		kubectl delete -f -
-	kubectl delete -f deploy/crds/osb_v1alpha1_templateservicebroker_crd.yaml
 
 openshift-ci-test-container:
 	yum -y install ansible-lint

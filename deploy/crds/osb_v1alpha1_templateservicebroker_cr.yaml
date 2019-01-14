@@ -1,6 +1,7 @@
+---
 apiVersion: "osb.openshift.io/v1alpha1"
 kind: "TemplateServiceBroker"
 metadata:
-  name: template-broker
-  namespace: openshift-template-service-broker
+  name: openshift-template-service-broker
+  namespace: REPLACE_NAMESPACE
 spec: {}
