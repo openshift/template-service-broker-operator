@@ -1,0 +1,236 @@
+# Template Service Broker Operator
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: template-service-broker-operator
+  namespace: REPLACE_NAMESPACE
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: template-service-broker-operator
+  namespace: REPLACE_NAMESPACE
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - configmaps
+  - secrets
+  - services
+  verbs:
+  - "*"
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - "*"
+- apiGroups:
+  - apps.openshift.io
+  resources:
+  - deploymentconfigs
+  verbs:
+  - "*"
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: template-service-broker-operator
+rules:
+- apiGroups:
+  - osb.openshift.io
+  resources:
+  - templateservicebrokers
+  - templateservicebrokers/status
+  verbs:
+  - "*"
+- apiGroups:
+  - servicecatalog.k8s.io
+  resources:
+  - clusterservicebrokers
+  - servicebrokers
+  verbs:
+  - "*"
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: template-service-broker-operator
+  namespace: REPLACE_NAMESPACE
+subjects:
+- kind: ServiceAccount
+  name: template-service-broker-operator
+  namespace: REPLACE_NAMESPACE
+roleRef:
+  kind: ClusterRole
+  name: template-service-broker-operator
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: template-service-broker-operator
+subjects:
+- kind: ServiceAccount
+  name: template-service-broker-operator
+  namespace: REPLACE_NAMESPACE
+roleRef:
+  kind: ClusterRole
+  name: template-service-broker-operator
+  apiGroup: rbac.authorization.k8s.io
+
+# Template Service Broker Client
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: template-service-broker-client
+  namespace: REPLACE_NAMESPACE
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: template-service-broker-client
+rules:
+- nonResourceURLs:
+  - /brokers/template.openshift.io/*
+  verbs:
+  - delete
+  - get
+  - put
+  - update
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: template-service-broker-client
+subjects:
+- kind: ServiceAccount
+  name: template-service-broker-client
+  namespace: REPLACE_NAMESPACE
+roleRef:
+  kind: ClusterRole
+  name: template-service-broker-client
+  apiGroup: rbac.authorization.k8s.io
+
+# APIServer
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: apiserver
+  namespace: REPLACE_NAMESPACE
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: template-service-broker-apiserver
+rules:
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.openshift.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+- apiGroups:
+  - template.openshift.io
+  resources:
+  - brokertemplateinstances
+  verbs:
+  - create
+  - delete
+  - get
+  - update
+- apiGroups:
+  - template.openshift.io
+  resources:
+  - brokertemplateinstances/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - template.openshift.io
+  resources:
+  - templateinstances
+  verbs:
+  - assign
+  - create
+  - delete
+  - get
+- apiGroups:
+  - template.openshift.io
+  resources:
+  - templates
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - delete
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - services
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - routes
+  verbs:
+  - get
+- apiGroups:
+  - route.openshift.io
+  resources:
+  - routes
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+  - update
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: template-service-broker-apiserver
+subjects:
+- kind: ServiceAccount
+  name: apiserver
+  namespace: REPLACE_NAMESPACE
+roleRef:
+  kind: ClusterRole
+  name: template-service-broker-apiserver
+  apiGroup: rbac.authorization.k8s.io

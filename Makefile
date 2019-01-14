@@ -2,9 +2,20 @@ REGISTRY   ?= docker.io
 ORG        ?= automationbroker
 TAG        ?= $(shell git rev-parse --short HEAD)
 IMAGE      ?= ${REGISTRY}/${ORG}/template-service-broker-operator:${TAG}
+NAMESPACE  ?= openshift-template-service-broker
 
 build: ## Build the tsb operator image
-	docker build -t ${IMAGE} -f build/Dockerfile .
+	operator-sdk build ${IMAGE}
+
+deploy: ## Deploy the tsb operator image in cluster
+	sed 's|REPLACE_IMAGE|${IMAGE}|g; s|REPLACE_NAMESPACE|${NAMESPACE}|g; s|Always|IfNotPresent|' \
+		deploy/namespace.yaml deploy/rbac.yaml deploy/operator.yaml | \
+		kubectl create -f -
+
+undeploy: ## UnDeploy the tsb operator image in cluster
+	sed 's|REPLACE_IMAGE|${IMAGE}|g; s|REPLACE_NAMESPACE|${NAMESPACE}|g; s|Always|IfNotPresent|' \
+		deploy/namespace.yaml deploy/rbac.yaml deploy/operator.yaml | \
+		kubectl delete -f -
 
 openshift-ci-test-container:
 	yum -y install ansible-lint
@@ -16,4 +27,4 @@ openshift-ci-test-container:
 openshift-ci-operator-lint:
 	ANSIBLE_LOCAL_TEMP=/tmp/.ansible ansible-lint /opt/ansible/playbook.yaml
 
-.PHONY: build openshift-ci-test-container openshift-ci-operator-lint
+.PHONY: build deploy undeploy openshift-ci-test-container openshift-ci-operator-lint
