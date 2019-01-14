@@ -11,11 +11,13 @@ deploy: ## Deploy the tsb operator image in cluster
 	sed 's|REPLACE_IMAGE|${IMAGE}|g; s|REPLACE_NAMESPACE|${NAMESPACE}|g; s|Always|IfNotPresent|' \
 		deploy/namespace.yaml deploy/rbac.yaml deploy/operator.yaml | \
 		kubectl create -f -
+	kubectl create -f deploy/crds/osb_v1alpha1_templateservicebroker_crd.yaml
 
 undeploy: ## UnDeploy the tsb operator image in cluster
 	sed 's|REPLACE_IMAGE|${IMAGE}|g; s|REPLACE_NAMESPACE|${NAMESPACE}|g; s|Always|IfNotPresent|' \
 		deploy/namespace.yaml deploy/rbac.yaml deploy/operator.yaml | \
 		kubectl delete -f -
+	kubectl delete -f deploy/crds/osb_v1alpha1_templateservicebroker_crd.yaml
 
 openshift-ci-test-container:
 	yum -y install ansible-lint
