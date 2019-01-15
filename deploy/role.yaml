@@ -1,12 +1,5 @@
 # Template Service Broker Operator
 ---
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: template-service-broker-operator
-  namespace: REPLACE_NAMESPACE
-
----
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -56,42 +49,7 @@ rules:
   verbs:
   - "*"
 
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: template-service-broker-operator
-  namespace: REPLACE_NAMESPACE
-subjects:
-- kind: ServiceAccount
-  name: template-service-broker-operator
-roleRef:
-  kind: Role
-  name: template-service-broker-operator
-  apiGroup: rbac.authorization.k8s.io
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: template-service-broker-operator
-subjects:
-- kind: ServiceAccount
-  name: template-service-broker-operator
-  namespace: REPLACE_NAMESPACE
-roleRef:
-  kind: ClusterRole
-  name: template-service-broker-operator
-  apiGroup: rbac.authorization.k8s.io
-
 # Template Service Broker Client
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: template-service-broker-client
-  namespace: REPLACE_NAMESPACE
-
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -106,28 +64,7 @@ rules:
   - put
   - update
 
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: template-service-broker-client
-subjects:
-- kind: ServiceAccount
-  name: template-service-broker-client
-  namespace: REPLACE_NAMESPACE
-roleRef:
-  kind: ClusterRole
-  name: template-service-broker-client
-  apiGroup: rbac.authorization.k8s.io
-
 # APIServer
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: apiserver
-  namespace: REPLACE_NAMESPACE
-
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -219,17 +156,3 @@ rules:
   - create
   - patch
   - update
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: template-service-broker-apiserver
-subjects:
-- kind: ServiceAccount
-  name: apiserver
-  namespace: REPLACE_NAMESPACE
-roleRef:
-  kind: ClusterRole
-  name: template-service-broker-apiserver
-  apiGroup: rbac.authorization.k8s.io
