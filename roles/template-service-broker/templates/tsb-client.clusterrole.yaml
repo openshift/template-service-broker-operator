@@ -1,0 +1,14 @@
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: "{{ broker_name }}-{{ broker_namespace }}-client"
+rules:
+- nonResourceURLs:
+  - /brokers/template.openshift.io/*
+  verbs:
+  - delete
+  - get
+  - put
+  - update

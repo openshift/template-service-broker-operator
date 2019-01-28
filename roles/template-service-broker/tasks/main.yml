@@ -9,9 +9,15 @@
     state: "{{ state }}"
     definition: "{{ lookup('template', item.name) | from_yaml }}"
   loop:
+    - name: apiserver.serviceaccount.yaml
+    - name: apiserver.clusterrole.yaml
+    - name: apiserver.clusterrolebinding.yaml
     - name: apiserver.deployment.yaml
     - name: apiserver.configmap.yaml
     - name: apiserver.service.yaml
+    - name: tsb-client.serviceaccount.yaml
+    - name: tsb-client.clusterrole.yaml
+    - name: tsb-client.clusterrolebinding.yaml
     - name: tsb-client.secret.yaml
 
 - name: "Set tsb config map state={{ state }}"
@@ -22,7 +28,12 @@
 
 - name: Set service_ca_bundle
   set_fact:
-    service_ca_bundle: "{{ lookup('k8s', kind='Secret', api_version='v1', namespace=broker_namespace, resource_name=apiserver_serving_cert_secret) | json_query('data.\"tls.crt\"')}}"
+    service_ca_bundle: "{{
+      lookup('k8s',
+      kind='Secret',
+      api_version='v1',
+      namespace=broker_namespace,
+      resource_name=apiserver_serving_cert_secret) | json_query('data.\"tls.crt\"')}}"
 
 - name: "Set clusterservicebroker state={{ state }}"
   k8s:

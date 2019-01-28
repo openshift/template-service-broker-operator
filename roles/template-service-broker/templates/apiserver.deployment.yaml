@@ -26,7 +26,7 @@ spec:
         apiserver: "true"
         app: "{{ broker_name }}"
     spec:
-      serviceAccountName: apiserver
+      serviceAccountName: "{{ apiserver_serviceaccount_name }}"
       containers:
       - name: c
         image: "{{ broker_image }}"

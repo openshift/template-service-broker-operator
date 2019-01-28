@@ -1,0 +1,15 @@
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: "{{ broker_name }}-{{ broker_namespace }}-client"
+roleRef:
+  name: "{{ broker_name }}-{{ broker_namespace }}-client"
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: "{{ broker_name }}-client"
+  namespace: "{{ broker_namespace }}"
+
