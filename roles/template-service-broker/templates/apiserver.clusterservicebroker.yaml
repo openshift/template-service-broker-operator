@@ -4,6 +4,7 @@ apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ClusterServiceBroker
 metadata:
   name: {{ broker_name }}
+{% if state == 'present' %}
 spec:
   url: "https://{{ apiserver_service_name }}.{{ broker_namespace }}.svc:443/brokers/template.openshift.io"
   insecureSkipTLSVerify: false
@@ -14,3 +15,23 @@ spec:
         kind:      Secret
         name:      "{{ broker_name }}-client"
         namespace: "{{ broker_namespace }}"
+{%   if 'servicecertsigner.config.openshift.io' not in lookup('k8s', cluster_info='api_groups') %}
+  caBundle: {{
+    lookup('k8s',
+    kind='Secret',
+    api_version='v1',
+    namespace=broker_namespace,
+    resource_name=apiserver_serving_cert_secret) | json_query('data.\"tls.crt\"')
+  }}
+{%   else %}
+  caBundle: {{
+    lookup(
+      'k8s',
+      kind='ConfigMap',
+      api_version='v1',
+      namespace=broker_namespace,
+      resource_name='apiserver-service-ca-bundle'
+    ) | json_query('data."service-ca.crt"') | b64encode
+  }}
+{%   endif %}
+{% endif %}

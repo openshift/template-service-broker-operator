@@ -15,6 +15,7 @@
     - name: apiserver.deployment.yaml
     - name: apiserver.configmap.yaml
     - name: apiserver.service.yaml
+    - name: apiserver-service-ca-bundle.configmap.yaml
     - name: tsb-client.serviceaccount.yaml
     - name: tsb-client.clusterrole.yaml
     - name: tsb-client.clusterrolebinding.yaml
@@ -25,15 +26,6 @@
     state: "{{ state }}"
     definition: "{{ lookup('template', 'apiserver.configmap.yaml') | from_yaml }}"
   notify: Redeploy tsb if the configmap changed
-
-- name: Set service_ca_bundle
-  set_fact:
-    service_ca_bundle: "{{
-      lookup('k8s',
-      kind='Secret',
-      api_version='v1',
-      namespace=broker_namespace,
-      resource_name=apiserver_serving_cert_secret) | json_query('data.\"tls.crt\"')}}"
 
 - name: "Set clusterservicebroker state={{ state }}"
   k8s:
