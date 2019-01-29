@@ -3,4 +3,5 @@
   version: v1alpha1
   group: osb.openshift.io
   kind: TemplateServiceBroker
+  reconcilePeriod: 0
   playbook: /opt/ansible/playbook.yaml
