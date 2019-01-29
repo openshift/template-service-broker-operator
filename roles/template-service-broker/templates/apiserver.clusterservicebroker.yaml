@@ -8,7 +8,6 @@ metadata:
 spec:
   url: "https://{{ apiserver_service_name }}.{{ broker_namespace }}.svc:443/brokers/template.openshift.io"
   insecureSkipTLSVerify: false
-  caBundle: "{{ service_ca_bundle }}"
   authInfo:
     bearer:
       secretRef:
