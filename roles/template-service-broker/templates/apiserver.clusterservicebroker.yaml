@@ -14,7 +14,7 @@ spec:
         kind:      Secret
         name:      "{{ broker_name }}-client"
         namespace: "{{ broker_namespace }}"
-{%   if 'servicecertsigner.config.openshift.io' not in lookup('k8s', cluster_info='api_groups') %}
+{%   if 'servicecertsigner.config.openshift.io' not in api_groups %}
   caBundle: {{
     lookup('k8s',
     kind='Secret',
