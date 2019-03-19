@@ -232,7 +232,7 @@ spec:
               containers:
               - name: openshift-template-service-broker-operator
                 image: registry.access.redhat.com/openshift/openshift-enterprise-template-service-broker-operator:v4.0.0
-                imagePullPolicy: Always
+                imagePullPolicy: IfNotPresent
                 env:
                 - name: IMAGE
                   value: registry.access.redhat.com/openshift/ose-template-service-broker:v4.0.0
