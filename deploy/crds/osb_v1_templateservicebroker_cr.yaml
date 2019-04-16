@@ -1,5 +1,5 @@
 ---
-apiVersion: "osb.openshift.io/v1alpha1"
+apiVersion: "osb.openshift.io/v1"
 kind: "TemplateServiceBroker"
 metadata:
   name: openshift-template-service-broker

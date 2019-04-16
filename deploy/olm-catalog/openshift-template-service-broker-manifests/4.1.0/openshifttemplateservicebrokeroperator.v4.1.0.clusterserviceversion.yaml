@@ -6,7 +6,7 @@ metadata:
   name: openshifttemplateservicebrokeroperator.v1.0.0
   namespace: placeholder
   annotations:
-    alm-examples: '[{"apiVersion":"osb.openshift.io/v1alpha1","kind":"TemplateServiceBroker","metadata":{"name":"template-service-broker","namespace":"template-service-broker"},"spec":{}}]'
+    alm-examples: '[{"apiVersion":"osb.openshift.io/v1","kind":"TemplateServiceBroker","metadata":{"name":"template-service-broker","namespace":"template-service-broker"},"spec":{}}]'
 spec:
   displayName: OpenShift Template Service Broker Operator
   description: |
@@ -249,7 +249,7 @@ spec:
   customresourcedefinitions:
     owned:
     - name: templateservicebrokers.osb.openshift.io
-      version: v1alpha1
+      version: v1
       kind: TemplateServiceBroker
       displayName: Template Service Broker
       description: An Open Service Broker supporting management of OpenShift templates.
