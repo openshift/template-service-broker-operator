@@ -6,8 +6,8 @@ NAMESPACE      ?= openshift-template-service-broker
 TEMPLATE_CMD    = sed 's|REPLACE_IMAGE|${IMAGE}|g; s|REPLACE_NAMESPACE|${NAMESPACE}|g; s|Always|IfNotPresent|'
 DEPLOY_OBJECTS  = deploy/namespace.yaml deploy/service_account.yaml deploy/role.yaml deploy/role_binding.yaml
 DEPLOY_OPERATOR = deploy/operator.yaml
-DEPLOY_CRDS     = deploy/crds/osb_v1alpha1_templateservicebroker_crd.yaml
-DEPLOY_CRS      = deploy/crds/osb_v1alpha1_templateservicebroker_cr.yaml
+DEPLOY_CRDS     = deploy/crds/osb_v1_templateservicebroker_crd.yaml
+DEPLOY_CRS      = deploy/crds/osb_v1_templateservicebroker_cr.yaml
 ACTION          = create
 
 

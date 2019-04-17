@@ -1,6 +1,6 @@
 ---
 - name: TemplateServiceBroker
-  version: v1alpha1
+  version: v1
   group: osb.openshift.io
   kind: TemplateServiceBroker
   reconcilePeriod: 0
