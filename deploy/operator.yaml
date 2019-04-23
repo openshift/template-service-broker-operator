@@ -31,3 +31,7 @@ spec:
                   fieldPath: metadata.namespace
             - name: OPERATOR_NAME
               value: "template-service-broker-operator"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
