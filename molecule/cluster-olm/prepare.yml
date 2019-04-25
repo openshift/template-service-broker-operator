@@ -1,0 +1,89 @@
+---
+
+- name: Prepare operator resources
+  hosts: localhost
+  connection: local
+  vars:
+    ansible_python_interpreter: '{{ ansible_playbook_python }}'
+  tasks:
+  - name: Set operator Image from Format
+    shell: "echo $IMAGE_FORMAT | envsubst '${component}'"
+    environment:
+      component: template-service-broker-operator
+    register: operator_image_raw
+
+  - name: Set operand Image from Format
+    shell: "echo $IMAGE_FORMAT | envsubst '${component}'"
+    environment:
+      component: template-service-broker
+    register: operand_image_raw
+
+  - name: Create tempdir for CSV
+    tempfile:
+      state: directory
+    register: tempdir
+
+  - name: Copy OLM resources to tempdir
+    copy:
+      src: "{{ playbook_dir }}/../../deploy/olm-catalog/openshift-template-service-broker-manifests/"
+      dest: "{{ tempdir.path }}"
+
+
+  - name:  Add operator image to csv
+    lineinfile:
+      dest: '{{ tempdir.path }}/{{ csv_version }}/openshifttemplateservicebrokeroperator.v4.1.0.clusterserviceversion.yaml'
+      regexp: "quay.io/openshift/origin-template-service-broker-operator"
+      line: "                image: {{ operator_image_raw.stdout }}"
+
+  - name:  Add operand image to csv
+    lineinfile:
+      dest: '{{ tempdir.path }}/{{ csv_version }}/openshifttemplateservicebrokeroperator.v4.1.0.clusterserviceversion.yaml'
+      regexp: "quay.io/openshift/origin-template-service-broker"
+      line: "                  value: {{ operand_image_raw.stdout }}"
+
+  - name: Build catalog source config map
+    shell: "{{ playbook_dir}}/e2e-olm.sh"
+    environment:
+      VERSION: '{{ csv_version }}'
+      DIR: '{{ tempdir.path }}'
+    register: olm_cf_cs
+
+  - debug:
+      var: cm
+    vars:
+      cm: "{{ olm_cf_cs.stdout | from_yaml  }}"
+
+  - name: Create config map
+    k8s:
+      namespace: "{{ namespace }}"
+      definition: "{{ olm_cf_cs.stdout | from_yaml }}"
+
+  - name: Create catalog source
+    k8s:
+      api_version: operators.coreos.com/v1alpha1
+      definition:
+        kind: CatalogSource
+        metadata:
+          name: openshift-template-broker-operator
+          namespace: "{{ namespace }}"
+        spec:
+          name: openshift-template-broker-operator
+          sourceType: internal
+          configMap: openshift-template-broker-operator
+          displayName: openshift-template-broker-operator
+          publisher: Operator Framework
+
+  - name: Create subscription
+    k8s:
+      definition:
+        apiVersion: operators.coreos.com/v1alpha1
+        kind: Subscription
+        metadata:
+          name: openshifttemplatesservicebroker
+          namespace: "{{ namespace }}"
+        spec:
+          source: openshift-template-broker-operator
+          sourceNamespace: "{{ namespace }}"
+          name: openshifttemplateservicebroker
+          startingCSV: openshifttemplateservicebrokeroperator.v4.1.0
+          channel: stable

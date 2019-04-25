@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: template-service-broker-operator
-  namespace: openshift-template-service-broker
+  namespace: '{{ namespace }}'
 spec:
   replicas: 1
   selector:
@@ -17,14 +17,14 @@ spec:
       serviceAccountName: template-service-broker-operator
       containers:
         - name: template-service-broker-operator
-          image: REPLACE_IMAGE
+          image: '{{ operator_image }}'
           ports:
             - containerPort: 60000
               name: metrics
           imagePullPolicy: Always
           env:
             - name: IMAGE
-              value: docker.io/openshift/origin-template-service-broker:latest
+              value: '{{ operand_image }}'
             - name: WATCH_NAMESPACE
               valueFrom:
                 fieldRef:
