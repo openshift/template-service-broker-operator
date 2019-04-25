@@ -231,11 +231,11 @@ spec:
               serviceAccountName: openshift-template-service-broker-operator
               containers:
               - name: openshift-template-service-broker-operator
-                image: registry.access.redhat.com/openshift/openshift-enterprise-template-service-broker-operator:v4.0.0
+                image: quay.io/openshift/origin-template-service-broker-operator
                 imagePullPolicy: IfNotPresent
                 env:
                 - name: IMAGE
-                  value: registry.access.redhat.com/openshift/ose-template-service-broker:v4.0.0
+                  value: quay.io/openshift/origin-template-service-broker
                 - name: OPERATOR_NAME
                   value: openshift-template-service-broker-operator
                 - name: POD_NAME

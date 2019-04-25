@@ -5,7 +5,6 @@
   connection: local
   vars:
     ansible_python_interpreter: '{{ ansible_playbook_python }}'
-    deploy_dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/deploy"
     custom_resource: "{{ lookup('file', '/'.join([deploy_dir, 'crds/osb_v1_templateservicebroker_cr.yaml'])) | from_yaml }}"
   tasks:
   - block:

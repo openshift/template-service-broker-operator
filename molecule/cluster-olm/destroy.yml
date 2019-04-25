@@ -1,0 +1,74 @@
+---
+
+- name: Destroy
+  hosts: localhost
+  connection: local
+  vars:
+    ansible_python_interpreter: '{{ ansible_playbook_python }}'
+    custom_resource: "{{ lookup('file', '/'.join([deploy_dir, 'crds/osb_v1_templateservicebroker_cr.yaml'])) | from_yaml }}"
+  tasks:
+  - name: Destroy template service brokers
+    k8s:
+      state: absent
+      namespace: '{{ namespace }}'
+      definition: '{{ custom_resource }}'
+    ignore_errors: yes
+
+  - name: Wait for tsbs to be deleted
+    k8s_facts:
+      state: absent
+      kind: '{{ custom_resource.kind }}'
+      api_version: '{{ custom_resource.apiVersion }}'
+      namespace: '{{ namespace }}'
+    register: result
+    until: not result.resources
+    retries: 30
+    delay: 10
+    ignore_errors: yes
+
+  - name: Delete specified namespace
+    k8s:
+      state: absent
+      api_version: v1
+      kind: Namespace
+      name: '{{ namespace }}'
+
+  - name: Wait for namespace to be deleted
+    k8s_facts:
+      kind: Namespace
+      api_version: v1
+      name: '{{ namespace }}'
+    register: result
+    until: not result.resources
+    retries: 30
+    delay: 10
+
+  - name: Delete ClusterRoleBinding
+    k8s:
+      state: absent
+      kind: ClusterRoleBinding
+      api_version: rbac.authorization.k8s.io/v1
+      name: template-service-broker-crb
+
+  - name: Delete ServiceCatalog ApiServer and ControllerManager
+    k8s:
+      state: absent
+      api_version: operator.openshift.io/v1
+      kind: '{{ item }}'
+      name: cluster
+    with_items:
+    - ServiceCatalogAPIServer
+    - ServiceCatalogControllerManager
+
+  - name: Wait for ServiceCatalog ApiServer and ControllerManager to be deleted
+    k8s_facts:
+      api_version: operator.openshift.io/v1
+      kind: '{{ item }}'
+      name: cluster
+    register: result
+    until: not result.resources
+    retries: 30
+    delay: 10
+    with_items:
+    - ServiceCatalogAPIServer
+    - ServiceCatalogControllerManager

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-DIR=$(cd $(dirname "$0")/../../deploy/olm-catalog/openshift-template-service-broker-manifests && pwd)
+DIR=${DIR:-$(cd $(dirname "$0")/../../deploy/olm-catalog/openshift-template-service-broker-manifests && pwd)}
 VERSION=${VERSION:-4.1}
 
-NAME=${NAME:-openshift-template-broker-operator}
 NAMEDISPLAY=${NAME:-"OpenShift Template Broker Operator"}
+NAME=${NAME:-openshift-template-broker-operator}
 
 indent() {
   INDENT="      "

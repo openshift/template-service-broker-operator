@@ -5,15 +5,7 @@
   connection: local
   vars:
     ansible_python_interpreter: '{{ ansible_playbook_python }}'
-    deploy_dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/deploy"
   tasks:
-  # need to pull all the info together into a config map
-  - name: Ensure specified namespace is present
-    k8s:
-      api_version: v1
-      kind: Namespace
-      name: '{{ namespace }}'
-
   - name: Set operator Image from Format
     shell: "echo $IMAGE_FORMAT | envsubst '${component}'"
     environment:
@@ -26,21 +18,34 @@
       component: template-service-broker
     register: operand_image_raw
 
+  - name: Create tempdir for CSV
+    tempfile:
+      state: directory
+    register: tempdir
+
+  - name: Copy OLM resources to tempdir
+    copy:
+      src: "{{ playbook_dir }}/../../deploy/olm-catalog/openshift-template-service-broker-manifests/"
+      dest: "{{ tempdir.path }}"
+
+
   - name:  Add operator image to csv
     lineinfile:
-      path: "{{ playbook_dir }}/../../deploy/olm-catalog/openshift-template-service-broker-manifests/{{ csv_version }}/openshifttemplateservicebroker.v4.1.0.clusterserviceversion.yaml"
+      dest: '{{ tempdir.path }}/{{ csv_version }}/openshifttemplateservicebrokeroperator.v4.1.0.clusterserviceversion.yaml'
       regexp: "quay.io/openshift/origin-template-service-broker-operator"
       line: "                image: {{ operator_image_raw.stdout }}"
 
   - name:  Add operand image to csv
     lineinfile:
-      path: "{{ playbook_dir }}/../../deploy/olm-catalog/openshift-template-service-broker-manifests/{{ csv_version }}/openshifttemplateservicebroker.v4.1.0.clusterserviceversion.yaml"
+      dest: '{{ tempdir.path }}/{{ csv_version }}/openshifttemplateservicebrokeroperator.v4.1.0.clusterserviceversion.yaml'
       regexp: "quay.io/openshift/origin-template-service-broker"
       line: "                  value: {{ operand_image_raw.stdout }}"
 
-
-  - name: Create catalog source config map
-    shell: "VERSION={{ csv_version }} {{ playbook_dir}}/e2e-olm.sh"
+  - name: Build catalog source config map
+    shell: "{{ playbook_dir}}/e2e-olm.sh"
+    environment:
+      VERSION: '{{ csv_version }}'
+      DIR: '{{ tempdir.path }}'
     register: olm_cf_cs
 
   - debug:
@@ -68,64 +73,6 @@
           displayName: openshift-template-broker-operator
           publisher: Operator Framework
 
-  - name: Create operator-group
-    k8s:
-      definition:
-        kind: OperatorGroup
-        apiVersion: operators.coreos.com/v1
-        metadata:
-          name: openshift-template-broker-operator
-          namespace: "{{ namespace }}"
-        spec:
-          targetNamespaces:
-          - "{{ namespace }}"
-
-  - name: Create Cluster Role Binding for operator svc account
-    k8s:
-      definition:
-        apiVersion: rbac.authorization.k8s.io/v1
-        kind: ClusterRoleBinding
-        metadata:
-          name: template-service-broker-crb
-        roleRef:
-          apiGroup: rbac.authorization.k8s.io 
-          kind: ClusterRole
-          name: admin
-        subjects:
-        - kind: ServiceAccount
-          name: openshift-template-service-broker-operator
-          namespace: "{{ namespace }}"
-
-  - name: Create ServiceCatalog ApiServer and ControllerManager
-    k8s:
-      definition:
-        apiVersion: operator.openshift.io/v1
-        kind: '{{ item }}'
-        metadata:
-          name: cluster
-        spec:
-          logLevel: Normal
-          managementState: Managed
-    with_items:
-    - ServiceCatalogAPIServer
-    - ServiceCatalogControllerManager
-
-  - name: Wait a couple of seconds because of initial conditions on service catalog
-    pause:
-      seconds: 10
-
-  - name: Wait 5m for Service Catalog Controller Manager to be complete
-    k8s_facts:
-      api_version: "operator.openshift.io/v1"
-      kind: "ServiceCatalogControllerManager"
-      name: "cluster"
-    register: svccat_cm
-    until:
-    - "[ \"True\" ] in (svccat_cm | json_query('resources[].status.conditions[?type==`Available`].status'))"
-    delay: 10
-    retries: 30
-
-  # This must come after the service catalog is working.
   - name: Create subscription
     k8s:
       definition:
@@ -138,5 +85,5 @@
           source: openshift-template-broker-operator
           sourceNamespace: "{{ namespace }}"
           name: openshifttemplateservicebroker
-          startingCSV: openshifttemplateservicebroker.v4.1.0
+          startingCSV: openshifttemplateservicebrokeroperator.v4.1.0
           channel: stable

@@ -1,0 +1,71 @@
+---
+
+- name: Get cluster ready for testing
+  hosts: localhost
+  connection: local
+  vars:
+    ansible_python_interpreter: '{{ ansible_playbook_python }}'
+  tasks:
+  # need to pull all the info together into a config map
+  - name: Ensure specified namespace is present
+    k8s:
+      api_version: v1
+      kind: Namespace
+      name: '{{ namespace }}'
+
+  - name: Create operator-group
+    k8s:
+      definition:
+        kind: OperatorGroup
+        apiVersion: operators.coreos.com/v1
+        metadata:
+          name: openshift-template-broker-operator
+          namespace: "{{ namespace }}"
+        spec:
+          targetNamespaces:
+          - "{{ namespace }}"
+
+  - name: Create Cluster Role Binding for operator svc account
+    k8s:
+      definition:
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        metadata:
+          name: template-service-broker-crb
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io 
+          kind: ClusterRole
+          name: admin
+        subjects:
+        - kind: ServiceAccount
+          name: openshift-template-service-broker-operator
+          namespace: "{{ namespace }}"
+
+  - name: Create ServiceCatalog ApiServer and ControllerManager
+    k8s:
+      definition:
+        apiVersion: operator.openshift.io/v1
+        kind: '{{ item }}'
+        metadata:
+          name: cluster
+        spec:
+          logLevel: Normal
+          managementState: Managed
+    with_items:
+    - ServiceCatalogAPIServer
+    - ServiceCatalogControllerManager
+
+  - name: Wait a couple of seconds because of initial conditions on service catalog
+    pause:
+      seconds: 10
+
+  - name: Wait 5m for Service Catalog Controller Manager to be complete
+    k8s_facts:
+      api_version: "operator.openshift.io/v1"
+      kind: "ServiceCatalogControllerManager"
+      name: "cluster"
+    register: svccat_cm
+    until:
+    - "[ \"True\" ] in (svccat_cm | json_query('resources[].status.conditions[?type==`Available`].status'))"
+    delay: 10
+    retries: 30
