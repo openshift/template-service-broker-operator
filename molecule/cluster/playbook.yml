@@ -68,7 +68,7 @@
       environment:
         KUBECONFIG: '{{ lookup("env", "KUBECONFIG") }}'
       vars:
-        definition: "{{ lookup('template', '/'.join([deploy_dir, 'testing', 'operator.yaml.j2'])) | from_yaml }}"
+        definition: "{{ lookup('file', '/'.join([deploy_dir, 'testing', 'operator.yaml.j2'])) | from_yaml }}"
       register: log
 
     - debug: var=log.stdout_lines

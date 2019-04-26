@@ -309,5 +309,3 @@
 
       - fail:
           msg: "Failed in asserts.yml"
-
-

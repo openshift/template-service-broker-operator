@@ -87,3 +87,8 @@
           name: openshifttemplateservicebroker
           startingCSV: openshifttemplateservicebrokeroperator.v4.1.0
           channel: stable
+
+  - name: Wait for the CRD to be created
+    debug:
+      msg: "Waiting for TemplateServiceBroker CRD to exist..."
+    until: "'osb.openshift.io' in lookup('k8s', cluster_info='api_groups')"
