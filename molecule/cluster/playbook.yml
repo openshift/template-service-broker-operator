@@ -63,12 +63,9 @@
         )}}'
     - name: get operator logs
       ignore_errors: yes
-      failed_when: false
-      command: kubectl logs deployment/{{ definition.metadata.name }} -n {{ namespace }}
+      command: kubectl logs deployment/template-service-broker-operator -n {{ namespace }}
       environment:
         KUBECONFIG: '{{ lookup("env", "KUBECONFIG") }}'
-      vars:
-        definition: "{{ lookup('file', '/'.join([deploy_dir, 'testing', 'operator.yaml.j2'])) | from_yaml }}"
       register: log
 
     - debug: var=log.stdout_lines

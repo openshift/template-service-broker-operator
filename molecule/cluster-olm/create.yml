@@ -25,22 +25,6 @@
           targetNamespaces:
           - "{{ namespace }}"
 
-  - name: Create Cluster Role Binding for operator svc account
-    k8s:
-      definition:
-        apiVersion: rbac.authorization.k8s.io/v1
-        kind: ClusterRoleBinding
-        metadata:
-          name: template-service-broker-crb
-        roleRef:
-          apiGroup: rbac.authorization.k8s.io 
-          kind: ClusterRole
-          name: admin
-        subjects:
-        - kind: ServiceAccount
-          name: openshift-template-service-broker-operator
-          namespace: "{{ namespace }}"
-
   - name: Create ServiceCatalog ApiServer and ControllerManager
     k8s:
       definition:
