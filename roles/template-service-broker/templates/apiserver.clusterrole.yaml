@@ -58,6 +58,14 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
   - secrets
   verbs:
   - create
@@ -67,7 +75,6 @@ rules:
   - ""
   resources:
   - configmaps
-  - services
   verbs:
   - get
 - apiGroups:

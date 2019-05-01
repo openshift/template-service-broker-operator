@@ -13,6 +13,7 @@ rules:
   - configmaps
   - secrets
   - services
+  - serviceaccounts
   verbs:
   - "*"
 - apiGroups:
@@ -35,6 +36,13 @@ metadata:
   name: template-service-broker-operator
 rules:
 - apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterroles
+  - clusterrolebindings
+  verbs:
+  - "*"
+- apiGroups:
   - osb.openshift.io
   resources:
   - templateservicebrokers
@@ -48,29 +56,6 @@ rules:
   - servicebrokers
   verbs:
   - "*"
-
-# Template Service Broker Client
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: template-service-broker-client
-rules:
-- nonResourceURLs:
-  - /brokers/template.openshift.io/*
-  verbs:
-  - delete
-  - get
-  - put
-  - update
-
-# APIServer
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: template-service-broker-apiserver
-rules:
 - apiGroups:
   - authorization.k8s.io
   resources:
@@ -155,4 +140,11 @@ rules:
   verbs:
   - create
   - patch
+  - update
+- nonResourceURLs:
+  - /brokers/template.openshift.io/*
+  verbs:
+  - delete
+  - get
+  - put
   - update
