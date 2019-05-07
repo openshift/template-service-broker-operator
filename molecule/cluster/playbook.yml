@@ -63,7 +63,7 @@
         )}}'
     - name: get operator logs
       ignore_errors: yes
-      command: kubectl logs deployment/template-service-broker-operator -n {{ namespace }}
+      command: kubectl logs deployment/openshift-template-service-broker-operator -n {{ namespace }}
       environment:
         KUBECONFIG: '{{ lookup("env", "KUBECONFIG") }}'
       register: log
