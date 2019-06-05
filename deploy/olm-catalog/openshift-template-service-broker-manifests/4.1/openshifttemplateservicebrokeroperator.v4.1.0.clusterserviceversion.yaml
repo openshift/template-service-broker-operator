@@ -3,10 +3,11 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
-  name: openshifttemplateservicebrokeroperator.v4.1.0
+  name: openshifttemplateservicebrokeroperator.v4.1.1
   namespace: placeholder
   annotations:
     alm-examples: '[{"apiVersion":"osb.openshift.io/v1","kind":"TemplateServiceBroker","metadata":{"name":"template-service-broker","namespace":"template-service-broker"},"spec":{}}]'
+    olm.skipRange: ">=4.1.0 <4.1.1"
 spec:
   displayName: OpenShift Template Service Broker Operator
   description: |
@@ -40,7 +41,7 @@ spec:
       asynchronous operation.  In the template service broker, *Provision*
       is the only asynchronous operation.
   keywords: ['template', 'broker', 'open service broker']
-  version: 4.1.0
+  version: 4.1.1
   maturity: stable
   maintainers:
   - name: Red Hat, Inc.
