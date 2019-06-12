@@ -1,4 +1,4 @@
 packageName: openshifttemplateservicebroker
 channels:
 - name: stable
-  currentCSV: openshifttemplateservicebrokeroperator.v4.1.1
+  currentCSV: openshifttemplateservicebrokeroperator.v4.1.2
