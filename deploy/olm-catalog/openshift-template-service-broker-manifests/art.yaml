@@ -9,6 +9,6 @@ updates:
       replace: "version: {FULL_VER}"
   - file: "openshifttemplateservicebroker.package.yaml"
     update_list:
-    - search: "currentCSV: openshifttemplateservicebrokeroperator.v{MAJOR}.{MINOR}.1"
+    - search: "currentCSV: openshifttemplateservicebrokeroperator.v{MAJOR}.{MINOR}.0"
       replace: "currentCSV: openshifttemplateservicebrokeroperator.{FULL_VER}"
 
