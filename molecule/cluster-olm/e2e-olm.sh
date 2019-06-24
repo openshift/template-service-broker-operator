@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 DIR=${DIR:-$(cd $(dirname "$0")/../../deploy/olm-catalog/openshift-template-service-broker-manifests && pwd)}
-VERSION=${VERSION:-4.1}
+VERSION=${VERSION:-4.2}
 
 NAMEDISPLAY=${NAME:-"OpenShift Template Broker Operator"}
 NAME=${NAME:-openshift-template-broker-operator}
