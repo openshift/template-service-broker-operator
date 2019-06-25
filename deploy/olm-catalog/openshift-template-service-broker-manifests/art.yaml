@@ -7,6 +7,8 @@ updates:
     # replace entire version line, otherwise would replace 4.1.0 anywhere
     - search: "version: {MAJOR}.{MINOR}.0"
       replace: "version: {FULL_VER}"
+    - search: 'olm.skipRange: ">={MAJOR}.{MINOR}.0"'
+      replace: 'olm.skipRange: ">={MAJOR}.{MINOR}.0 <{FULL_VER}"'
   - file: "openshifttemplateservicebroker.package.yaml"
     update_list:
     - search: "currentCSV: openshifttemplateservicebrokeroperator.v{MAJOR}.{MINOR}.0"
