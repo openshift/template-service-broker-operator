@@ -80,6 +80,7 @@ spec:
           - configmaps
           - secrets
           - services
+          - services/finalizers
           - serviceaccounts
           verbs:
           - "*"
@@ -87,6 +88,8 @@ spec:
           - apps
           resources:
           - deployments
+          - deployments/finalizers
+          - replicasets
           verbs:
           - "*"
         - apiGroups:

@@ -43,13 +43,13 @@ spec:
         - "--config=/var/apiserver-config/apiserver-config.yaml"
 {% if lookup("env", "HTTP_PROXY") or lookup("env", "HTTPS_PROXY") or lookup("env", "NO_PROXY") %}
         env:
-{% endif %}
 {% for proxy_envvar in ["HTTP_PROXY", "HTTPS_PROXY", "NO_PROXY"] %}
-{% if lookup("env", proxy_envvar) != None %}
+{% if lookup("env", proxy_envvar) %}
         - name: {{ proxy_envvar }}
-          value: '{{ lookup("env", proxy_envvar) }}'
+          value: "{{ lookup('env', proxy_envvar) }}"
 {% endif %}
 {% endfor %}
+{% endif %}
         ports:
         - containerPort: 8443
         volumeMounts:
