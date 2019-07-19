@@ -13,12 +13,15 @@ rules:
   - configmaps
   - secrets
   - services
+  - services/finalizers
   verbs:
   - "*"
 - apiGroups:
   - apps
   resources:
   - deployments
+  - deployments/finalizers
+  - replicasets
   verbs:
   - "*"
 - apiGroups:

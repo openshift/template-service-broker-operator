@@ -13,6 +13,7 @@ rules:
   - configmaps
   - secrets
   - services
+  - services/finalizers
   - serviceaccounts
   verbs:
   - "*"
@@ -20,6 +21,8 @@ rules:
   - apps
   resources:
   - deployments
+  - deployments/finalizers
+  - replicasets
   verbs:
   - "*"
 - apiGroups:
