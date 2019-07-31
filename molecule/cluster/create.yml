@@ -1,0 +1,36 @@
+---
+
+- name: Get cluster ready for testing
+  hosts: localhost
+  connection: local
+  vars:
+    ansible_python_interpreter: '{{ ansible_playbook_python }}'
+  tasks:
+  - name: Create ServiceCatalog ApiServer and ControllerManager
+    k8s:
+      definition:
+        apiVersion: operator.openshift.io/v1
+        kind: '{{ item }}'
+        metadata:
+          name: cluster
+        spec:
+          logLevel: Normal
+          managementState: Managed
+    with_items:
+    - ServiceCatalogAPIServer
+    - ServiceCatalogControllerManager
+
+  - name: Wait a couple of seconds because of initial conditions on service catalog
+    pause:
+      seconds: 10
+
+  - name: Wait 5m for Service Catalog Controller Manager to be complete
+    k8s_facts:
+      api_version: "operator.openshift.io/v1"
+      kind: "ServiceCatalogControllerManager"
+      name: "cluster"
+    register: svccat_cm
+    until:
+    - "[ \"True\" ] in (svccat_cm | json_query('resources[].status.conditions[?type==`Available`].status'))"
+    delay: 10
+    retries: 30

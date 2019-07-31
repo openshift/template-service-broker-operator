@@ -4,7 +4,7 @@ dependency:
 driver:
   name: delegated
   options:
-    managed: False
+    managed: True
     ansible_connection_options: {}
 lint:
   name: yamllint
