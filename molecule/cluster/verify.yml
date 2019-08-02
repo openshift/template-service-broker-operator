@@ -39,6 +39,16 @@
     django_psql_replicas: "{{ django_psql_deployment | json_query('status.replicas') }}"
     django_psql_updated: "{{ django_psql_deployment | json_query('status.updatedReplicas') }}"
     django_psql_available: "{{ django_psql_deployment | json_query(available_status_query) }}"
+    binding_query: "{{
+      lookup(
+        'k8s',
+        api_version='servicecatalog.k8s.io/v1beta1',
+        kind='ServiceBinding',
+        namespace=test_namespace,
+        resource_name='postgresql-binding'
+      ) | json_query(ready_status_query)
+    }}"
+
 
   tasks:
     - block:
@@ -65,7 +75,7 @@
           delay: 10
           retries: 60
 
-        - name: Create test namespace for APBs
+        - name: Create test namespace
           k8s:
             definition:
               apiVersion: v1
@@ -117,39 +127,80 @@
             - webpage.status == 200
             - "'Welcome to your Django application on OpenShift' in webpage.content"
 
-        # - name: Delete binding
-        #   k8s:
-        #     state: absent
-        #     definition:
-        #       apiVersion: servicecatalog.k8s.io/v1beta1
-        #       kind: ServiceBinding
-        #       metadata:
-        #         name: django_psql-postgresql-binding
-        #         namespace: "{{ test_namespace }}"
+        - name: Provision postgresql
+          k8s:
+            state: present
+            definition:
+              apiVersion: servicecatalog.k8s.io/v1beta1
+              kind: ServiceInstance
+              metadata:
+                name: postgresql
+                namespace: '{{ test_namespace}}'
+              spec:
+                clusterServiceClassExternalName: postgresql-ephemeral
+                clusterServicePlanExternalName: default
 
-        # - name: Wait for django_psql-postgresql binding instance to be removed
-        #   debug:
-        #     msg: "Binding ready status: {{ binding_query }}"
-        #   retries: 15
-        #   delay: 10
-        #   until: not binding_query
+        - name: Wait for postgresql service instance
+          debug:
+            msg: "Instance ready status: {{ postgresql_query }}"
+          retries: 15
+          delay: 10
+          until: postgresql_query | length > 0 and postgresql_query | first == "True"
 
-        # - name: Deprovision postgresql
-        #   k8s:
-        #     state: absent
-        #     definition:
-        #       apiVersion: servicecatalog.k8s.io/v1beta1
-        #       kind: ServiceInstance
-        #       metadata:
-        #         name: postgresql
-        #         namespace: "{{ test_namespace }}"
+        - name: Create binding
+          k8s:
+            state: present
+            definition:
+              apiVersion: servicecatalog.k8s.io/v1beta1
+              kind: ServiceBinding
+              metadata:
+                name: postgresql-binding
+                namespace: '{{ test_namespace }}'
+              spec:
+                instanceRef:
+                  name: postgresql
+                secretName: postgresql-binding
 
-        # - name: Wait for postgresql service instance to be removed
-        #   debug:
-        #     msg: "Instance ready status: {{ postgresql_query }}"
-        #   retries: 15
-        #   delay: 10
-        #   until: not postgresql_query
+        - name: Wait for postgresql binding instance
+          debug:
+            msg: "Binding ready status: {{ binding_query }}"
+          retries: 15
+          delay: 10
+          until: binding_query | length > 0 and binding_query | first == "True"
+
+        - name: Delete binding
+          k8s:
+            state: absent
+            definition:
+              apiVersion: servicecatalog.k8s.io/v1beta1
+              kind: ServiceBinding
+              metadata:
+                name: postgresql-binding
+                namespace: "{{ test_namespace }}"
+
+        - name: Wait for postgresql binding instance to be removed
+          debug:
+            msg: "Binding ready status: {{ binding_query }}"
+          retries: 15
+          delay: 10
+          until: not binding_query
+
+        - name: Deprovision postgresql
+          k8s:
+            state: absent
+            definition:
+              apiVersion: servicecatalog.k8s.io/v1beta1
+              kind: ServiceInstance
+              metadata:
+                name: postgresql
+                namespace: "{{ test_namespace }}"
+
+        - name: Wait for postgresql service instance to be removed
+          debug:
+            msg: "Instance ready status: {{ postgresql_query }}"
+          retries: 15
+          delay: 10
+          until: not postgresql_query
 
         - name: Deprovision django_psql
           k8s:
