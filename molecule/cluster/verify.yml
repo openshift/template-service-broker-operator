@@ -97,6 +97,7 @@
                 clusterServicePlanExternalName: default
                 parameters:
                   NAME: django-psql
+                  DATABASE_SERVICE_NAME: django-example-postgresql
 
         - name: Wait for django-psql service instance
           debug:
