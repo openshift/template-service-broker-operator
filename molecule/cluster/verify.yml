@@ -5,16 +5,16 @@
     cluster: openshift
     ansible_python_interpreter: '{{ ansible_playbook_python }}'
     custom_resource: "{{ lookup('file', '/'.join([deploy_dir, 'crds/osb_v1_templateservicebroker_cr.yaml'])) | from_yaml }}"
-    test_namespace: apb-test
+    test_namespace: tsbo-test
     ready_status_query: "status.conditions[?type == 'Ready'].status"
     available_status_query: "status.conditions[?type == 'Available'].status"
-    mediawiki_query: "{{
+    django_psql_query: "{{
       lookup(
         'k8s',
         api_version='servicecatalog.k8s.io/v1beta1',
         kind='ServiceInstance',
         namespace=test_namespace,
-        resource_name='mediawiki'
+        resource_name='django-psql'
       ) | json_query(ready_status_query)
     }}"
     postgresql_query: "{{
@@ -26,28 +26,29 @@
         resource_name='postgresql'
       ) | json_query(ready_status_query)
     }}"
+    django_psql_deployment: "{{
+      lookup(
+        'k8s',
+        api_version='apps/v1' if cluster == 'kubernetes' else 'apps.openshift.io/v1',
+        kind='Deployment' if cluster == 'kubernetes' else 'DeploymentConfig',
+        namespace=test_namespace,
+        resource_name='django-psql'
+      )
+    }}"
+    django_psql_ready: "{{ django_psql_deployment | json_query('status.readyReplicas') }}"
+    django_psql_replicas: "{{ django_psql_deployment | json_query('status.replicas') }}"
+    django_psql_updated: "{{ django_psql_deployment | json_query('status.updatedReplicas') }}"
+    django_psql_available: "{{ django_psql_deployment | json_query(available_status_query) }}"
     binding_query: "{{
       lookup(
         'k8s',
         api_version='servicecatalog.k8s.io/v1beta1',
         kind='ServiceBinding',
         namespace=test_namespace,
-        resource_name='mediawiki-postgresql-binding'
+        resource_name='postgresql-binding'
       ) | json_query(ready_status_query)
     }}"
-    mediawiki_deployment: "{{
-      lookup(
-        'k8s',
-        api_version='apps/v1' if cluster == 'kubernetes' else 'apps.openshift.io/v1',
-        kind='Deployment' if cluster == 'kubernetes' else 'DeploymentConfig',
-        namespace=test_namespace,
-        resource_name='mediawiki'
-      )
-    }}"
-    mediawiki_ready: "{{ mediawiki_deployment | json_query('status.readyReplicas') }}"
-    mediawiki_replicas: "{{ mediawiki_deployment | json_query('status.replicas') }}"
-    mediawiki_updated: "{{ mediawiki_deployment | json_query('status.updatedReplicas') }}"
-    mediawiki_available: "{{ mediawiki_deployment | json_query(available_status_query) }}"
+
 
   tasks:
     - block:
@@ -74,193 +75,150 @@
           delay: 10
           retries: 60
 
-        - name: Create test namespace for APBs
+        - name: Create test namespace
           k8s:
             definition:
               apiVersion: v1
               kind: Namespace
               metadata:
-                name: apb-test
+                name: '{{ test_namespace }}'
 
-        # - name: Provision Mediawiki
-        #   k8s:
-        #     state: present
-        #     definition:
-        #       apiVersion: servicecatalog.k8s.io/v1beta1
-        #       kind: ServiceInstance
-        #       metadata:
-        #         name: mediawiki
-        #         namespace: apb-test
-        #       spec:
-        #         clusterServiceClassExternalName: dh-mediawiki-apb
-        #         clusterServicePlanExternalName: default
-        #         parameters:
-        #           app_name: mediawiki
-        #           mediawiki_db_schema: "mediawiki"
-        #           mediawiki_site_name: "Mediawiki-CI"
-        #           mediawiki_site_lang: "en"
-        #           mediawiki_admin_user: "ci-user"
-        #           mediawiki_admin_pass: "admin"
+        - name: Provision django_psql
+          k8s:
+            state: present
+            definition:
+              apiVersion: servicecatalog.k8s.io/v1beta1
+              kind: ServiceInstance
+              metadata:
+                name: django-psql
+                namespace: '{{ test_namespace }}'
+              spec:
+                clusterServiceClassExternalName: django-psql-example
+                clusterServicePlanExternalName: default
+                parameters:
+                  NAME: django-psql
+                  DATABASE_SERVICE_NAME: django-example-postgresql
 
-        # - name: Wait for mediawiki service instance
-        #   debug:
-        #     msg: "instance ready status: {{ mediawiki_query }}"
-        #   retries: 15
-        #   delay: 10
-        #   until: mediawiki_query | length > 0 and mediawiki_query | first == "True"
+        - name: Wait for django-psql service instance
+          debug:
+            msg: "instance ready status: {{ django_psql_query }}"
+          retries: 60
+          delay: 10
+          until: django_psql_query | length > 0 and django_psql_query | first == "True"
 
-        # - name: Provision postgresql
-        #   k8s:
-        #     state: present
-        #     definition:
-        #       apiVersion: servicecatalog.k8s.io/v1beta1
-        #       kind: ServiceInstance
-        #       metadata:
-        #         name: postgresql
-        #         namespace: apb-test
-        #       spec:
-        #         clusterServiceClassExternalName: dh-postgresql-apb
-        #         clusterServicePlanExternalName: dev
-        #         parameters:
-        #           app_name: "postgresql"
-        #           postgresql_database: "admin"
-        #           postgresql_password: "admin"
-        #           postgresql_user: "admin"
-        #           postgresql_version: "9.6"
+        - name: Retrieve route
+          k8s_facts:
+            api_version: route.openshift.io/v1
+            kind: Route
+            name: "django-psql"
+            namespace: "{{ test_namespace }}"
+          register: django_psql_route
 
-        # - name: Wait for postgresql service instance
-        #   debug:
-        #     msg: "Instance ready status: {{ postgresql_query }}"
-        #   retries: 15
-        #   delay: 10
-        #   until: postgresql_query | length > 0 and postgresql_query | first == "True"
+        - debug:
+            msg: "{{ django_psql_route.resources[0] }}"
 
-        # - name: Create binding
-        #   k8s:
-        #     state: present
-        #     definition:
-        #       apiVersion: servicecatalog.k8s.io/v1beta1
-        #       kind: ServiceBinding
-        #       metadata:
-        #         name: mediawiki-postgresql-binding
-        #         namespace: apb-test
-        #       spec:
-        #         instanceRef:
-        #           name: postgresql
-        #         secretName: mediawiki-postgresql-binding
+        - name: "Verify django_psql"
+          uri:
+            url: "http://{{ django_psql_route.resources[0].status.ingress[0].host }}"
+            return_content: yes
+          retries: 15
+          delay: 10
+          register: webpage
+          until:
+            - webpage.status == 200
+            - "'Welcome to your Django application on OpenShift' in webpage.content"
 
-        # - name: Wait for mediawiki-postgresql binding instance
-        #   debug:
-        #     msg: "Binding ready status: {{ binding_query }}"
-        #   retries: 15
-        #   delay: 10
-        #   until: binding_query | length > 0 and binding_query | first == "True"
+        - name: Provision postgresql
+          k8s:
+            state: present
+            definition:
+              apiVersion: servicecatalog.k8s.io/v1beta1
+              kind: ServiceInstance
+              metadata:
+                name: postgresql
+                namespace: '{{ test_namespace}}'
+              spec:
+                clusterServiceClassExternalName: postgresql-ephemeral
+                clusterServicePlanExternalName: default
 
-        # - name: Update mediawiki deployment(config)
-        #   k8s:
-        #     state: present
-        #     definition:
-        #       apiVersion: "{{ 'apps/v1' if cluster == 'kubernetes' else 'apps.openshift.io/v1' }}"
-        #       kind: "{{ 'Deployment' if cluster == 'kubernetes' else 'DeploymentConfig' }}"
-        #       metadata:
-        #         name: mediawiki
-        #         namespace: apb-test
-        #       spec:
-        #         template:
-        #           spec:
-        #             containers:
-        #               - name: mediawiki
-        #                 envFrom:
-        #                   - secretRef:
-        #                       name: mediawiki-postgresql-binding
+        - name: Wait for postgresql service instance
+          debug:
+            msg: "Instance ready status: {{ postgresql_query }}"
+          retries: 15
+          delay: 10
+          until: postgresql_query | length > 0 and postgresql_query | first == "True"
 
-        # - name: Wait for mediawiki deployment(config) to be updated
-        #   debug:
-        #     msg: "Waiting for mediawiki"
-        #   retries: 15
-        #   delay: 10
-        #   until: mediawiki_replicas == "1" and mediawiki_ready == "1" and mediawiki_updated == "1"
+        - name: Create binding
+          k8s:
+            state: present
+            definition:
+              apiVersion: servicecatalog.k8s.io/v1beta1
+              kind: ServiceBinding
+              metadata:
+                name: postgresql-binding
+                namespace: '{{ test_namespace }}'
+              spec:
+                instanceRef:
+                  name: postgresql
+                secretName: postgresql-binding
 
-        # - name: Wait for mediawiki deployment(config) to be available
-        #   debug:
-        #     msg:
-        #       - "Deployment(config) ready status: {{ mediawiki_available }}"
-        #   retries: 15
-        #   delay: 10
-        #   until: mediawiki_available | length > 0 and mediawiki_available | first == "True"
+        - name: Wait for postgresql binding instance
+          debug:
+            msg: "Binding ready status: {{ binding_query }}"
+          retries: 15
+          delay: 10
+          until: binding_query | length > 0 and binding_query | first == "True"
 
-        # - name: Retrieve route
-        #   k8s_facts:
-        #     api_version: route.openshift.io/v1
-        #     kind: Route
-        #     name: "mediawiki"
-        #     namespace: "{{ test_namespace }}"
-        #   register: mediawiki_route
+        - name: Delete binding
+          k8s:
+            state: absent
+            definition:
+              apiVersion: servicecatalog.k8s.io/v1beta1
+              kind: ServiceBinding
+              metadata:
+                name: postgresql-binding
+                namespace: "{{ test_namespace }}"
 
-        # - debug:
-        #     msg: "{{ mediawiki_route.resources[0] }}"
+        - name: Wait for postgresql binding instance to be removed
+          debug:
+            msg: "Binding ready status: {{ binding_query }}"
+          retries: 15
+          delay: 10
+          until: not binding_query
 
-        # - name: "Verify mediawiki"
-        #   uri:
-        #     url: "http://{{ mediawiki_route.resources[0].status.ingress[0].host }}/index.php/Main_Page"
-        #     return_content: yes
-        #   retries: 15
-        #   delay: 10
-        #   register: webpage
-        #   until:
-        #     - webpage.status == 200
-        #     - "'MediaWiki has been installed.' in webpage.content"
+        - name: Deprovision postgresql
+          k8s:
+            state: absent
+            definition:
+              apiVersion: servicecatalog.k8s.io/v1beta1
+              kind: ServiceInstance
+              metadata:
+                name: postgresql
+                namespace: "{{ test_namespace }}"
 
-        # - name: Delete binding
-        #   k8s:
-        #     state: absent
-        #     definition:
-        #       apiVersion: servicecatalog.k8s.io/v1beta1
-        #       kind: ServiceBinding
-        #       metadata:
-        #         name: mediawiki-postgresql-binding
-        #         namespace: "{{ test_namespace }}"
+        - name: Wait for postgresql service instance to be removed
+          debug:
+            msg: "Instance ready status: {{ postgresql_query }}"
+          retries: 15
+          delay: 10
+          until: not postgresql_query
 
-        # - name: Wait for mediawiki-postgresql binding instance to be removed
-        #   debug:
-        #     msg: "Binding ready status: {{ binding_query }}"
-        #   retries: 15
-        #   delay: 10
-        #   until: not binding_query
+        - name: Deprovision django_psql
+          k8s:
+            state: absent
+            definition:
+              apiVersion: servicecatalog.k8s.io/v1beta1
+              kind: ServiceInstance
+              metadata:
+                name: django-psql
+                namespace: "{{ test_namespace }}"
 
-        # - name: Deprovision postgresql
-        #   k8s:
-        #     state: absent
-        #     definition:
-        #       apiVersion: servicecatalog.k8s.io/v1beta1
-        #       kind: ServiceInstance
-        #       metadata:
-        #         name: postgresql
-        #         namespace: "{{ test_namespace }}"
-
-        # - name: Wait for postgresql service instance to be removed
-        #   debug:
-        #     msg: "Instance ready status: {{ postgresql_query }}"
-        #   retries: 15
-        #   delay: 10
-        #   until: not postgresql_query
-
-        # - name: Deprovision mediawiki
-        #   k8s:
-        #     state: absent
-        #     definition:
-        #       apiVersion: servicecatalog.k8s.io/v1beta1
-        #       kind: ServiceInstance
-        #       metadata:
-        #         name: mediawiki
-        #         namespace: "{{ test_namespace }}"
-
-        # - name: Wait for mediawiki service instance to be removed
-        #   debug:
-        #     msg: "Instance ready status: {{ mediawiki_query }}"
-        #   retries: 15
-        #   delay: 10
-        #   until: not mediawiki_query
+        - name: Wait for django_psql service instance to be removed
+          debug:
+            msg: "Instance ready status: {{ django_psql_query }}"
+          retries: 15
+          delay: 10
+          until: not django_psql_query
 
       rescue:
       - name: debug cr
