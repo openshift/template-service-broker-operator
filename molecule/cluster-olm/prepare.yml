@@ -86,7 +86,7 @@
           sourceNamespace: "{{ namespace }}"
           name: openshifttemplateservicebroker
           startingCSV: openshifttemplateservicebrokeroperator.v4.2.0
-          channel: stable
+          channel: 4.2
 
   - name: Wait for the CRD to be created
     pause:
