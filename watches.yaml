@@ -5,3 +5,7 @@
   kind: TemplateServiceBroker
   reconcilePeriod: 0
   playbook: /opt/ansible/playbook.yaml
+  finalizer:
+    name: finalizer.osb.openshift.io
+    vars:
+      state: absent
