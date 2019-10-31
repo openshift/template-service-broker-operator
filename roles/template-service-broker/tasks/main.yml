@@ -24,6 +24,7 @@
     - name: tsb-client.clusterrole.yaml
     - name: tsb-client.clusterrolebinding.yaml
     - name: tsb-client.secret.yaml
+    - name: tsb.prometheus-alert.yaml
 
 - name: "Set tsb config map state={{ state }}"
   k8s:
