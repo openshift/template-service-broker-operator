@@ -101,6 +101,13 @@ spec:
           - deploymentconfigs
           verbs:
           - "*"
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - prometheusrules
+          - servicemonitors
+          verbs:
+          - '*'
       clusterPermissions:
       - serviceAccountName: openshift-template-service-broker-operator
         rules:
