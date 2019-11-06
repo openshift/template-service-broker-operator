@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ broker_name }}
+  namespace: {{ broker_namespace }}
+spec:
+  groups:
+    - name: template-service-broker-enabled
+      rules:
+        - alert: TemplateServiceBrokerEnabled
+          annotations:
+            summary: Indicates whether the Template Service Broker is enabled
+          expr: |
+            templateservicebroker_info{namespace="{{ broker_namespace }}",templateservicebroker="{{ broker_name }}"} > 0
+          labels:
+            severity: warning
