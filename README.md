@@ -8,3 +8,5 @@ An operator for managing the Template Service Broker
 * Use `make deploy-objects` and `make deploy-crds` (and skip deploying the operator)
   if you want to use `operator-sdk up local`.
 * Use `make help` if you want help automating some of the development workflows.
+
+DELETE ME
