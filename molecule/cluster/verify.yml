@@ -73,7 +73,7 @@
           - "'Ready' in (csb | json_query('resources[].status.conditions[].type'))"
           - "'FetchedCatalog' in (csb | json_query('resources[].status.conditions[].reason'))"
           delay: 10
-          retries: 60
+          retries: 90
 
         - name: Create test namespace
           k8s:
@@ -102,7 +102,7 @@
         - name: Wait for django-psql service instance
           debug:
             msg: "instance ready status: {{ django_psql_query }}"
-          retries: 60
+          retries: 90
           delay: 10
           until: django_psql_query | length > 0 and django_psql_query | first == "True"
 
@@ -121,7 +121,7 @@
           uri:
             url: "http://{{ django_psql_route.resources[0].status.ingress[0].host }}"
             return_content: yes
-          retries: 15
+          retries: 30
           delay: 10
           register: webpage
           until:
@@ -144,7 +144,7 @@
         - name: Wait for postgresql service instance
           debug:
             msg: "Instance ready status: {{ postgresql_query }}"
-          retries: 15
+          retries: 30
           delay: 10
           until: postgresql_query | length > 0 and postgresql_query | first == "True"
 
@@ -165,7 +165,7 @@
         - name: Wait for postgresql binding instance
           debug:
             msg: "Binding ready status: {{ binding_query }}"
-          retries: 15
+          retries: 30
           delay: 10
           until: binding_query | length > 0 and binding_query | first == "True"
 
@@ -182,7 +182,7 @@
         - name: Wait for postgresql binding instance to be removed
           debug:
             msg: "Binding ready status: {{ binding_query }}"
-          retries: 15
+          retries: 30
           delay: 10
           until: not binding_query
 
@@ -199,7 +199,7 @@
         - name: Wait for postgresql service instance to be removed
           debug:
             msg: "Instance ready status: {{ postgresql_query }}"
-          retries: 15
+          retries: 30
           delay: 10
           until: not postgresql_query
 
@@ -216,7 +216,7 @@
         - name: Wait for django_psql service instance to be removed
           debug:
             msg: "Instance ready status: {{ django_psql_query }}"
-          retries: 15
+          retries: 30
           delay: 10
           until: not django_psql_query
 
