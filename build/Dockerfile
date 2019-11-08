@@ -3,7 +3,7 @@ FROM quay.io/operator-framework/ansible-operator:master
 LABEL com.redhat.delivery.appregistry=true
 
 USER 0
-RUN if [[ -f "/usr/local/bin/user_setup" ]] ; then /usr/local/bin/user_setup ; fi
+RUN if [ -f "/usr/local/bin/user_setup" ] ; then /usr/local/bin/user_setup ; fi
 USER 1001
 
 ADD deploy/olm-catalog/openshift-template-service-broker-manifests /manifests
