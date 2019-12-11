@@ -86,6 +86,7 @@ spec:
           - services
           - services/finalizers
           - serviceaccounts
+          - endpoints
           verbs:
           - "*"
         - apiGroups:
