@@ -243,12 +243,12 @@ spec:
           replicas: 1
           selector:
             matchLabels:
-              name: openshift-template-service-broker-operator-alm-owned
+              name: openshift-template-service-broker-operator
           template:
             metadata:
-              name: openshift-template-service-broker-operator-alm-owned
+              name: openshift-template-service-broker-operator
               labels:
-                name: openshift-template-service-broker-operator-alm-owned
+                name: openshift-template-service-broker-operator
             spec:
               serviceAccountName: openshift-template-service-broker-operator
               containers:
