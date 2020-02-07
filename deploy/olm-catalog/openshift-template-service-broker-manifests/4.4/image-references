@@ -1,0 +1,12 @@
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+spec:
+  tags:
+  - name: template-service-broker
+    from:
+      kind: DockerImage
+      name: quay.io/openshift/origin-template-service-broker
+  - name: template-service-broker-operator
+    from:
+      kind: DockerImage
+      name: quay.io/openshift/origin-template-service-broker-operator
