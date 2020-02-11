@@ -4,11 +4,11 @@ updates:
     # replace metadata.name value
     - search: "openshifttemplateservicebrokeroperator.v{MAJOR}.{MINOR}.0"
       replace: "openshifttemplateservicebrokeroperator.{FULL_VER}"
-    # replace entire version line, otherwise would replace 4.1.0 anywhere
+    # replace entire version line, otherwise would replace 4.y.0 anywhere
     - search: "version: {MAJOR}.{MINOR}.0"
       replace: "version: {FULL_VER}"
-    - search: 'olm.skipRange: ">=4.2.0 <{MAJOR}.{MINOR}.0"'
-      replace: 'olm.skipRange: ">=4.2.0 <{FULL_VER}"'
+    - search: 'olm.skipRange: ">=4.3.0 <{MAJOR}.{MINOR}.0"'
+      replace: 'olm.skipRange: ">=4.3.0 <{FULL_VER}"'
   - file: "openshifttemplateservicebroker.package.yaml"
     update_list:
     - search: "currentCSV: openshifttemplateservicebrokeroperator.v{MAJOR}.{MINOR}.0"
