@@ -31,13 +31,13 @@
 
   - name:  Add operator image to csv
     lineinfile:
-      dest: '{{ tempdir.path }}/{{ csv_version }}/openshifttemplateservicebrokeroperator.v4.3.0.clusterserviceversion.yaml'
+      dest: '{{ tempdir.path }}/{{ csv_version }}/openshifttemplateservicebrokeroperator.v4.4.0.clusterserviceversion.yaml'
       regexp: "quay.io/openshift/origin-template-service-broker-operator"
       line: "                image: {{ operator_image_raw.stdout }}"
 
   - name:  Add operand image to csv
     lineinfile:
-      dest: '{{ tempdir.path }}/{{ csv_version }}/openshifttemplateservicebrokeroperator.v4.3.0.clusterserviceversion.yaml'
+      dest: '{{ tempdir.path }}/{{ csv_version }}/openshifttemplateservicebrokeroperator.v4.4.0.clusterserviceversion.yaml'
       regexp: "quay.io/openshift/origin-template-service-broker"
       line: "                  value: {{ operand_image_raw.stdout }}"
 
@@ -85,7 +85,7 @@
           source: openshift-template-broker-operator
           sourceNamespace: "{{ namespace }}"
           name: openshifttemplateservicebroker
-          startingCSV: openshifttemplateservicebrokeroperator.v4.3.0
+          startingCSV: openshifttemplateservicebrokeroperator.v4.4.0
           channel: stable
 
   - name: Wait for the CRD to be created

@@ -39,6 +39,7 @@ openshift-ci-test-container:
 	cp -r playbook.yaml /opt/ansible/playbook.yaml
 
 openshift-ci-operator-lint:
+	echo "default:x:`id -u`:0:Default User:/tmp:/sbin/nologin" >> /etc/passwd
 	ANSIBLE_LOCAL_TEMP=/tmp/.ansible ansible-lint /opt/ansible/playbook.yaml
 
 help: ## Show this help screen
