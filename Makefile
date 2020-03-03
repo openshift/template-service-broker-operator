@@ -15,7 +15,7 @@ build: ## Build the tsb operator image
 	operator-sdk build ${IMAGE}
 
 $(DEPLOY_OBJECTS) $(DEPLOY_CRDS) $(DEPLOY_OPERATOR) $(DEPLOY_CRS):
-	@${TEMPLATE_CMD} $@ | kubectl apply -f -
+	@${TEMPLATE_CMD} $@ | kubectl create -f -
 
 deploy-objects: $(DEPLOY_OBJECTS) ## Create the operator namespace and RBAC in cluster
 
