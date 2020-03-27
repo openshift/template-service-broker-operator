@@ -11,5 +11,3 @@ RUN pip install -U setuptools \
  && pip install molecule==2.20.1 jmespath 'openshift>=0.8.0, < 0.9.0' \
  && pip install -U requests
 
-
-RUN chmod g+rw /etc/passwd
