@@ -1,24 +1,13 @@
 reviewers:
- - djwhatle
- - djzager
- - dymurray
  - fabianvf
- - jmontleon
  - jmrodri
- - johnkim76
- - jwmatthews
- - mhrivnak
- - rthallisey
+ - camilamacedo86
+ - joelanford
  - shawn-hurley
 approvers:
- - djwhatle
- - djzager
- - dymurray
  - fabianvf
- - jmontleon
  - jmrodri
- - johnkim76
- - jwmatthews
- - mhrivnak
- - rthallisey
+ - camilamacedo86
+ - joelanford
  - shawn-hurley
+component: "Service Broker"
