@@ -52,4 +52,7 @@ help: ## Show this help screen
 		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ''
 
-.PHONY: build $(DEPLOY_OBJECTS) $(DEPLOY_OPERATOR) $(DEPLOY_CRDS) $(DEPLOY_CRS) undeploy openshift-ci-test-container openshift-ci-operator-lint
+hello:
+	@echo "Hello from template-service-broker-operator"
+
+.PHONY: build $(DEPLOY_OBJECTS) $(DEPLOY_OPERATOR) $(DEPLOY_CRDS) $(DEPLOY_CRS) undeploy openshift-ci-test-container openshift-ci-operator-lint hello
