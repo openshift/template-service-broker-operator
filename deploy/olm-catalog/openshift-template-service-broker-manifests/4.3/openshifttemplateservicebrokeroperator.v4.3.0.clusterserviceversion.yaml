@@ -130,6 +130,8 @@ spec:
         - apiGroups:
           - rbac.authorization.k8s.io
           resources:
+          - roles
+          - rolebindings
           - clusterroles
           - clusterrolebindings
           verbs:
@@ -138,6 +140,7 @@ spec:
           - patch
           - get
           - list
+          - watch
         - apiGroups:
           - authorization.k8s.io
           resources:
