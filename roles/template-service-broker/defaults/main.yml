@@ -4,6 +4,8 @@ state: present
 kube_system_namespace: kube-system
 broker_name: template-service-broker
 broker_namespace: openshift-template-service-broker
+broker_operator_name: '{{ broker_name }}-operator'
+broker_operator_service_monitor_name: '{{ broker_operator_name }}'
 broker_image: docker.io/openshift/origin-template-service-broker:latest
 broker_log_level: '0'
 broker_node_selector: ""
